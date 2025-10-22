@@ -4,6 +4,10 @@ import type {ISignUp} from "../../../../../types/user"
 import { useForm } from "react-hook-form";
 export const SignUp = () => {
 	const {register,handleSubmit,formState:{errors}} = useForm<ISignUp>()
+	const handleSignUp = (data:ISignUp) => {
+		//Axios request in backend api 
+		console.log(data)
+	}
 	return (
 		<div className="flex flex-col md:flex-row min-h-screen">
 
@@ -49,77 +53,85 @@ export const SignUp = () => {
 					</div>
 
 					{/* Name & Username */}
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-						<div>
-							{errors.name && (
+					<form onSubmit={handleSubmit(handleSignUp)}>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+							<div>
+								{errors.name && (
+									<p className="flex items-center text-red-600 text-sm mt-1 font-medium">
+										<span className="mr-2">⚠️</span>
+										{errors.name.message}
+									</p>
+								)}
+
+								<label className="block mt-2 py-1">Full Name</label>
+								<input
+
+									type="text"
+									placeholder="John Doe"
+									className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
+									{...register("name", { required: "Please input your Name" })}
+								/>
+							</div>
+							<div>
+								{errors.username && (
+									<p className="flex items-center text-red-600 text-sm mt-1">
+										<span className="mr-1">⚠️</span>
+										{errors.username.message}
+									</p>
+								)}
+
+								<label className="block mt-2 py-1">Username</label>
+								<input
+									type="text"
+									placeholder="JohnDoe123"
+									className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
+									{...register("username", { required: "Please input UserName" })}
+
+								/>
+							</div>
+						</div>
+
+						{/* Email */}
+						<div className="relative mb-3">
+							{errors.email && (
 								<p className="flex items-center text-red-600 text-sm mt-1">
 									<span className="mr-1">⚠️</span>
-									{errors.name.message}
+									{errors.email.message}
 								</p>
 							)}
 
-							<label className="block mt-2 py-1">Full Name</label>
+							<label className="block mt-2 py-1">Email</label>
 							<input
-							
-								type="text"
-								placeholder="John Doe"
+								type="email"
+								placeholder="name@example.com"
 								className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-								{...register("name",{required:"Please input your Name"})}
+								{...register("email", { required: "Please input your Email" })}
+
 							/>
 						</div>
-						<div>
-							{errors.username && (
+
+						{/* Password */}
+						<div className="mb-5">
+							{errors.password && (
 								<p className="flex items-center text-red-600 text-sm mt-1">
 									<span className="mr-1">⚠️</span>
-									{errors.username.message}
+									{errors.password.message}
 								</p>
 							)}
-
-							<label className="block mt-2 py-1">Username</label>
+							<label className="block mt-2 py-1">Password</label>
 							<input
-								type="text"
-								placeholder="JohnDoe123"
+								type="password"
+								placeholder="*************"
 								className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-								{...register("username", { required: "Please input your UserName" })}
-
+								{...register("password", { required: "Please input your Password" })}
 							/>
 						</div>
-					</div>
 
-					{/* Email */}
-					<div className="relative mb-3">
-						{errors.email && (
-							<p className="flex items-center text-red-600 text-sm mt-1">
-								<span className="mr-1">⚠️</span>
-								{errors.email.message}
-							</p>
-						)}
-
-						<label className="block mt-2 py-1">Email</label>
-						<input
-							type="email"
-							placeholder="name@example.com"
-							className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-							{...register("email", { required: "Please input your Email" })}
-
-						/>
-					</div>
-
-					{/* Password */}
-					<div className="mb-5">
-						<label className="block mt-2 py-1">Password</label>
-						<input
-							type="password"
-							placeholder="*************"
-							className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-							{...register("password", { required: "Please input your Password" })}
-						/>
-					</div>
-
-					{/* Submit Button */}
-					<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition">
-						Sign Up
-					</button>
+						{/* Submit Button */}
+						<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition">
+							Sign Up
+						</button>
+					</form>
 
 					{/* Footer */}
 					<p className="text-center text-sm text-gray-500 mt-3">
