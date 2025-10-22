@@ -23,7 +23,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   }
 
   const decoded = JWT.verify(token, env.JWT_SECRET as string);
-  const user = await User.findById(decoded.id);
+//   const user = await User.findById(decoded.id);
   
   next();
 };
