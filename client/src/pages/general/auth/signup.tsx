@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import type {ISignUp} from "../../../../../types/user"
 import { useForm } from "react-hook-form";
+import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 export const SignUp = () => {
 	const {register,handleSubmit,formState:{errors}} = useForm<ISignUp>()
 	const handleSignUp = (data:ISignUp) => {
@@ -57,74 +58,102 @@ export const SignUp = () => {
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
 							<div>
 								{errors.name && (
-									<p className="flex items-center text-red-600 text-sm mt-1 font-medium">
-										<span className="mr-2">⚠️</span>
-										{errors.name.message}
-									</p>
+									<div className="flex items-start bg-red-100 border border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-md animate-slide-fade max-w-md">
+										<span className="mr-3 text-xl animate-pulse">⚠️</span>
+										<div className="flex-1">
+											<p className="font-semibold">{errors.name.message}</p>
+											<p className="text-xs mt-1 text-red-600">Please correct this error to continue</p>
+										</div>
+									</div>
 								)}
 
-								<label className="block mt-2 py-1">Full Name</label>
-								<input
+								<div className="relative">
+									<FaUser className="absolute left-3 top-11 text-gray-400" />
+									<label className="block mt-2 py-1">Full Name</label>
+									<input
 
-									type="text"
-									placeholder="John Doe"
-									className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-									{...register("name", { required: "Please input your Name" })}
-								/>
+										type="text"
+										placeholder="John Doe"
+										className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+										{...register("name", { required: "Please input your Name" })}
+									/>
+								</div>
 							</div>
 							<div>
 								{errors.username && (
-									<p className="flex items-center text-red-600 text-sm mt-1">
-										<span className="mr-1">⚠️</span>
-										{errors.username.message}
-									</p>
+									<div className="flex items-start bg-red-100 border border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-md animate-slide-fade max-w-md">
+										<span className="mr-3 text-xl animate-pulse">⚠️</span>
+										<div className="flex-1">
+											<p className="font-semibold">{errors.username.message}</p>
+											<p className="text-xs mt-1 text-red-600">Please correct this error to continue</p>
+										</div>
+									</div>
 								)}
 
-								<label className="block mt-2 py-1">Username</label>
-								<input
-									type="text"
-									placeholder="JohnDoe123"
-									className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-									{...register("username", { required: "Please input UserName" })}
+								<div className="relative">
+									<FaUser className="absolute left-3 top-11 text-gray-400" />
+									<label className="block mt-2 py-1">Username</label>
+									<input
+										type="text"
+										placeholder="JohnDoe123"
+										className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+										{...register("username", { required: "Please input UserName" })}
 
-								/>
+									/>
+								</div>
 							</div>
 						</div>
 
 						{/* Email */}
 						<div className="relative mb-3">
 							{errors.email && (
-								<p className="flex items-center text-red-600 text-sm mt-1">
-									<span className="mr-1">⚠️</span>
-									{errors.email.message}
-								</p>
+								<div className="flex items-start bg-red-100 border border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-md animate-slide-fade max-w-md">
+									<span className="mr-3 text-xl animate-pulse">⚠️</span>
+									<div className="flex-1">
+										<p className="font-semibold">{errors.email.message}</p>
+										<p className="text-xs mt-1 text-red-600">Please correct this error to continue</p>
+									</div>
+								</div>
 							)}
 
-							<label className="block mt-2 py-1">Email</label>
-							<input
-								type="email"
-								placeholder="name@example.com"
-								className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-								{...register("email", { required: "Please input your Email" })}
 
-							/>
+
+
+							<div className="relative">
+								<FaEnvelope className="absolute left-3 top-11 text-gray-400" />
+
+								<label className="block mt-2 py-1">Email</label>
+								<input
+									type="email"
+									placeholder="name@example.com"
+									className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+									{...register("email", { required: "Please input your Email" })}
+
+								/>
+							</div>
 						</div>
 
 						{/* Password */}
 						<div className="mb-5">
 							{errors.password && (
-								<p className="flex items-center text-red-600 text-sm mt-1">
-									<span className="mr-1">⚠️</span>
-									{errors.password.message}
-								</p>
+								<div className="flex items-start bg-red-100 border border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-md animate-slide-fade max-w-md">
+									<span className="mr-3 text-xl animate-pulse">⚠️</span>
+									<div className="flex-1">
+										<p className="font-semibold">{errors.password.message}</p>
+										<p className="text-xs mt-1 text-red-600">Please correct this error to continue</p>
+									</div>
+								</div>
 							)}
-							<label className="block mt-2 py-1">Password</label>
-							<input
-								type="password"
-								placeholder="*************"
-								className="border border-gray-300 rounded-md px-3 py-2 opacity-70 w-full focus:outline-purple-500"
-								{...register("password", { required: "Please input your Password" })}
-							/>
+							<div className="relative">
+								<FaLock className="absolute left-3 top-11 text-gray-400" />
+								<label className="block mt-2 py-1">Password</label>
+								<input
+									type="password"
+									placeholder="*************"
+									className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+									{...register("password", { required: "Please input your Password" })}
+								/>
+							</div>
 						</div>
 
 						{/* Submit Button */}
