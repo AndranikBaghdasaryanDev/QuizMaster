@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import type {ISignUp} from "../../../../../types/user"
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 export const SignUp = () => {
 	const {register,handleSubmit,formState:{errors}} = useForm<ISignUp>()
@@ -10,7 +10,7 @@ export const SignUp = () => {
 		console.log(data)
 	}
 	return (
-		<div className="flex flex-col md:flex-row min-h-screen">
+		<div className="flex flex-col md:flex-row min-h-screen relative">
 
 			{/* Left Side: Background + Logo */}
 			<div className="md:flex-1 bg-gradient-to-b from-black to-gray-900 flex items-center justify-center relative overflow-hidden h-64 md:h-auto">
@@ -52,6 +52,11 @@ export const SignUp = () => {
 						<span className="px-2">OR</span>
 						<span className="border-t w-1/3"></span>
 					</div>
+
+
+					{/* Modal Verification Code */}
+
+					
 
 					{/* Name & Username */}
 					<form onSubmit={handleSubmit(handleSignUp)}>
