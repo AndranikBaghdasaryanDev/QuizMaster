@@ -49,7 +49,7 @@ export const Mail = () => {
 					</label>
 
 					{/* === Dropdown Menu === */}
-					<div className="absolute right-0 mt-3 w-52 bg-[#0f0f0f] border border-[#1a0125] rounded-lg shadow-lg opacity-0 translate-y-2 scale-95 peer-checked:opacity-100 peer-checked:translate-y-0 peer-checked:scale-100 transition-all duration-300 origin-top-right z-[9999]">
+					<div className="absolute right-0 mt-3 w-52 bg-[#0f0f0f] border border-[#1a0125] rounded-lg shadow-lg opacity-0 translate-y-2 scale-95 peer-checked:opacity-100 peer-checked:translate-y-0 peer-checked:scale-100 transition-all duration-300 origin-top-right z-9999">
 						<ul className="flex flex-col text-white text-sm p-3 space-y-2">
 							<li className="hover:text-[#C45037] transition cursor-pointer">Quiz</li>
 							<li className="hover:text-[#C45037] transition cursor-pointer">
