@@ -24,7 +24,7 @@ export const Login = () => {
 					/>
 				</div>
 				<h1 className="text-4xl sm:text-5xl md:text-6xl font-bold z-10 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent text-center px-4">
-					QuizzMaster
+					QuizMaster
 				</h1>
 			</div>
 
@@ -57,30 +57,6 @@ export const Login = () => {
 
 					{/* Name & Username */}
 					<form onSubmit={handleSubmit(handleSignIn)}>
-						<div className="mb-3">
-								{errors.username && (
-									<div className="flex items-start bg-red-100 border border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-md animate-slide-fade max-w-md">
-										<span className="mr-3 text-xl animate-pulse">⚠️</span>
-										<div className="flex-1">
-											<p className="font-semibold">{errors.username.message}</p>
-											<p className="text-xs mt-1 text-red-600">Please correct this error to continue</p>
-										</div>
-									</div>
-								)}
-							<div className="relative">
-								 <label className="block mt-2 py-1">Username</label>
-								<FaUser className="absolute left-3 top-11 text-gray-400" />
-								<input
-									type="text"
-									placeholder="Username"
-									className="border border-gray-300 rounded-md px-10 py-2 w-full focus:outline-purple-500"
-									{...register("username", { required: "Please input your username" })}
-								/>
-
-
-							</div>
-						</div>
-
 						{/* Email */}
 						<div className="relative mb-3">
 							{errors.email && (
@@ -141,7 +117,7 @@ export const Login = () => {
 					{/* Footer */}
 					<p className="text-center text-sm text-gray-500 mt-3">
 						Already have an account?{" "}
-						<Link to={"/auth/register"} className="text-purple-600 font-medium hover:underline">
+						<Link to={"/signup"} className="text-purple-600 font-medium hover:underline">
 							Sign Up
 						</Link>
 					</p>

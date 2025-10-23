@@ -22,7 +22,7 @@ export const SignUp = () => {
 					/>
 				</div>
 				<h1 className="text-4xl sm:text-5xl md:text-6xl font-bold z-10 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent text-center px-4">
-					QuizzMaster
+					QuizMaster
 				</h1>
 			</div>
 
@@ -170,7 +170,7 @@ export const SignUp = () => {
 					{/* Footer */}
 					<p className="text-center text-sm text-gray-500 mt-3">
 						Already have an account?{" "}
-						<Link to={"/auth/signin"} className="text-purple-600 font-medium hover:underline">
+						<Link to={"/login"} className="text-purple-600 font-medium hover:underline">
 							Sign In
 						</Link>
 					</p>
