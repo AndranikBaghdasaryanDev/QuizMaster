@@ -5,6 +5,7 @@
     // "rootDir": "./src",
     // "outDir": "./dist",
 
+    "typeRoots": ["./node_modules/@types", "./types"],
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
@@ -42,5 +43,10 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "allowImportingTsExtensions": true
-  }
+  },
+  "include": [
+    "src/**/*",
+    "../types/**/*"
+  ]
+
 }

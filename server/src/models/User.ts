@@ -1,4 +1,3 @@
-import { timeStamp } from "console";
 import mongoose from "mongoose";
 
 const userScheme = new mongoose.Schema(
@@ -9,16 +8,25 @@ const userScheme = new mongoose.Schema(
         },
         username: {
             type: String,
-            required: [true, "Username is required"]
+            required: [true, "Username is required"],
+            unique: [true, "Username is busy"]
         },
         email: {
             type: String,
-            required: [true, "Email is required"]
+            required: [true, "Email is required"],
+            unique: [true, "Email is busy"]
         },
         password: {
             type: String,
-            require: [true, "Password is required"]
-        }
+            required: [true, "Password is required"]
+        },
+        isVerified: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        verifyToken: String,
+        verifyExpires: Date
     },
     {
         timestamps: true

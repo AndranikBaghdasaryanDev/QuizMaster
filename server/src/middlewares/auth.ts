@@ -23,7 +23,17 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   }
 
   const decoded = JWT.verify(token, env.JWT_SECRET as string);
-//   const user = await User.findById(decoded.id);
-  
+
+  if (typeof decoded === "string" || !("id" in decoded)) {
+    return res.status(401).send({ error: true, message: "Invalid token" });
+  }
+
+  const user = await User.findById(decoded.id).select("-password");
+
+  if (!user) {
+    return res.status(404).send({ error: true, message: "Not found" });
+  }
+
+  req.user = user;
   next();
 };
