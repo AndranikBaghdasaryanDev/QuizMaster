@@ -19,7 +19,7 @@ export const SignUp = () => {
 						className="w-full h-full object-cover"
 						src="../../../images/signup-background-image.png"
 						alt="Sign Up Background"
-					/>
+					/>	
 				</div>
 				<h1 className="text-4xl sm:text-5xl md:text-6xl font-bold z-10 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent text-center px-4">
 					QuizMaster
