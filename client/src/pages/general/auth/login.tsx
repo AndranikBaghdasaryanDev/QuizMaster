@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import type { ISignUp } from "../../../../../types/user"
 import { useForm } from "react-hook-form";
-import { FaLock, FaUser } from "react-icons/fa";
+import { FaArrowLeft, FaLock, } from "react-icons/fa";
 import { FaEnvelope } from "react-icons/fa";
 
 export const Login = () => {
@@ -15,7 +15,7 @@ export const Login = () => {
 		<div className="flex flex-col md:flex-row min-h-screen">
 
 			{/* Left Side: Background + Logo */}
-			<div className="md:flex-1 bg-gradient-to-b from-black to-gray-900 flex items-center justify-center relative overflow-hidden h-64 md:h-auto">
+			<div className="md:flex-1 bg-linear-to-b from-black to-gray-900 flex items-center justify-center relative overflow-hidden h-64 md:h-auto">
 				<div className="absolute inset-0">
 					<img
 						className="w-full h-full object-cover"
@@ -23,7 +23,7 @@ export const Login = () => {
 						alt="Sign Up Background"
 					/>
 				</div>
-				<h1 className="text-4xl sm:text-5xl md:text-6xl font-bold z-10 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent text-center px-4">
+				<h1 className="text-4xl sm:text-5xl md:text-6xl font-bold z-10 bg-linear-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent text-center px-4">
 					QuizMaster
 				</h1>
 			</div>
@@ -122,6 +122,15 @@ export const Login = () => {
 						</Link>
 					</p>
 				</div>
+			</div>
+			<div className="absolute right-0 top-0">
+				<Link
+					to="/"
+				>
+					<FaArrowLeft
+						className=" mr-15 mt-10 text-gray-500 text-shadow-black text-3xl z-100 from-[#5813C1] to-[#C45037] bg-clip-text transition-transform duration-300 group-hover:-translate-x-1 drop-shadow-[0_0_8px_rgba(196,80,55,0.5)] cursor-pointer"
+					/>
+				</Link>
 			</div>
 		</div>
 	);
