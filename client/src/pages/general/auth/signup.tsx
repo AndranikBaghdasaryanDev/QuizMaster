@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import type {ISignUp} from "../../../../../types/user"
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 export const SignUp = () => {
 	const {register,handleSubmit,formState:{errors}} = useForm<ISignUp>()
