@@ -28,12 +28,12 @@ export const SectionCTA = () => {
 					>
 						<button className="px-5 py-2.5 border border-white text-white font-semibold rounded-md hover:bg-white/10 hover:scale-[1.05] transition-all duration-300">
 							Log in
-							
+
 						</button>
 					</Link>
 				</div>
 			</div>
-
+		
 			{/* === Right Illustration Box === */}
 			<div className="flex-1 flex justify-center md:justify-end">
 				<div className="bg-white rounded-2xl w-[280px] h-[180px] md:w-[340px] md:h-[220px] shadow-lg">
