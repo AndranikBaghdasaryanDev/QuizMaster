@@ -33,7 +33,7 @@ export const SectionCTA = () => {
 					</Link>
 				</div>
 			</div>
-		
+			
 			{/* === Right Illustration Box === */}
 			<div className="flex-1 flex justify-center md:justify-end">
 				<div className="bg-white rounded-2xl w-[280px] h-[180px] md:w-[340px] md:h-[220px] shadow-lg">
