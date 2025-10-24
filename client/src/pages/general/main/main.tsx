@@ -10,8 +10,6 @@ export const Mail = () => {
 		
 		<Header/>
 
-
-
 		<main className=" text-white font-sans">
 			{/* === Section 1 === */}
 			<SectionBanner/>

@@ -1,15 +1,25 @@
 
 import { Link } from "react-router-dom";
-import type { ISignUp } from "../../../../../types/user"
+import type { ILogIn, ISignUp } from "../../../../../types/user"
 import { useForm } from "react-hook-form";
 import { FaArrowLeft, FaLock, } from "react-icons/fa";
 import { FaEnvelope } from "react-icons/fa";
+import { Axios } from "../../../api";
+
 
 export const Login = () => {
 	const { register, handleSubmit, formState: { errors } } = useForm<ISignUp>()
-	const handleSignIn = (data: ISignUp) => {
-		//Axios request in backend api 
+	const handleSignIn = (data: ILogIn) => {
 		console.log(data)
+		Axios
+		.post("/auth/login",data)
+		.then(response => {
+			console.log("hello")
+			console.log(response.data)
+		}) 
+		.catch(error => {
+			console.log(error.response.data)
+		})
 	}
 	return (
 		<div className="flex flex-col md:flex-row min-h-screen">
@@ -110,7 +120,7 @@ export const Login = () => {
 
 						{/* Submit Button */}
 						<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition">
-							Sign Up
+							Log in
 						</button>
 					</form>
 

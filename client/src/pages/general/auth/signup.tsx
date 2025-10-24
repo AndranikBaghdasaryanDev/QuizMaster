@@ -4,12 +4,21 @@ import type {ISignUp} from "../../../../../types/user"
 import { useForm } from "react-hook-form";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa"
+import { Axios } from "../../../api";
 
 export const SignUp = () => {
 	const {register,handleSubmit,formState:{errors}} = useForm<ISignUp>()
 	const handleSignUp = (data:ISignUp) => {
-		//Axios request in backend api 
+		
 		console.log(data)
+		Axios
+		.post("/auth/signup",data)
+		.then(response => {
+			console.log(response.data)
+		})
+		.catch(error => {
+			console.log(error.response.data)
+		})
 	}
 	return (
 		<div className="flex flex-col md:flex-row min-h-screen relative">
