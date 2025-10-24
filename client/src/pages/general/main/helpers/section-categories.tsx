@@ -35,7 +35,7 @@ export const SectionCategories = () => {
 					Test your knowledge in science & tech with our challenging quizzes
 				</p>
 				<a
-					href="#"
+					href=""
 					className="text-blue-400 text-sm font-medium hover:underline flex items-center space-x-1"
 				>
 					<span>Explore Quizzes</span>
@@ -55,7 +55,7 @@ export const SectionCategories = () => {
 					Test your knowledge in mathematics with our challenging quizzes
 				</p>
 				<a
-					href="#"
+					href=""
 					className="text-green-400 text-sm font-medium hover:underline flex items-center space-x-1"
 				>
 					<span>Explore Quizzes</span>
@@ -75,7 +75,7 @@ export const SectionCategories = () => {
 					Test your knowledge in chemistry with our challenging quizzes
 				</p>
 				<a
-					href="#"
+					href=""
 					className="text-purple-400 text-sm font-medium hover:underline flex items-center space-x-1"
 				>
 					<span>Explore Quizzes</span>
@@ -95,7 +95,7 @@ export const SectionCategories = () => {
 					Test your knowledge in biology with our challenging quizzes
 				</p>
 				<a
-					href="#"
+					href=""
 					className="text-pink-400 text-sm font-medium hover:underline flex items-center space-x-1"
 				>
 					<span>Explore Quizzes</span>
@@ -115,7 +115,7 @@ export const SectionCategories = () => {
 					Test your knowledge in general knowledge with our challenging quizzes
 				</p>
 				<a
-					href="#"
+					href=""
 					className="text-yellow-400 text-sm font-medium hover:underline flex items-center space-x-1"
 				>
 					<span>Explore Quizzes</span>
@@ -135,7 +135,7 @@ export const SectionCategories = () => {
 					Test your knowledge in current affairs with our challenging quizzes
 				</p>
 				<a
-					href="#"
+					href=""
 					className="text-red-400 text-sm font-medium hover:underline flex items-center space-x-1"
 				>
 					<span>Explore Quizzes</span>

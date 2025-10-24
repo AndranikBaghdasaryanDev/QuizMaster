@@ -47,7 +47,7 @@ export const SectionAbout = () => {
 				<h2 className="text-4xl md:text-5xl font-bold mb-4">
 					Why{" "}
 					<span className="bg-linear-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent">
-						Quizzy
+						QuizMaster
 					</span>
 				</h2>
 				<p className="text-gray-400 text-lg max-w-2xl mx-auto">

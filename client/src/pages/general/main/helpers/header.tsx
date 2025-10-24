@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 
 export const Header = () => {
-	return <header className="z-1000 fixed top-0 left-0 w-full h-[64px] bg-black border-b border-[#1a0125]">
+	return <header className="z-1000 fixed top-0 left-0 w-full h-16 bg-black border-b border-[#1a0125]">
 		<nav className="mx-auto h-full flex justify-between items-center px-6 md:px-12">
 			{/* === Left: Logo === */}
 			<h1 className="text-2xl font-bold bg-linear-to-r from-[#5813C1] to-[#C45037] bg-clip-text text-transparent tracking-wide drop-shadow-[0_0_10px_rgba(196,80,55,0.5)]">
