@@ -10,6 +10,7 @@ export interface Env {
   EMAIL_USER: string;
   EMAIL_FROM: string;
   EMAIL_PASS: string;
+  TOKEN_EXPIRE_TIME: string;
   [key: string]: string; // for any other vars
 }
 
@@ -22,4 +23,6 @@ export const env: Env = {
   EMAIL_USER: process.env.EMAIL_USER ?? "",
   EMAIL_FROM: process.env.EMAIL_FROM ?? "",
   EMAIL_PASS: process.env.EMAIL_PASS ?? "",
+  TOKEN_EXPIRE_TIME: process.env.TOKEN_EXPIRE_TIME ?? "300000"
+
 };

@@ -6,17 +6,18 @@ import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 
 import { connectDB, disconnectDb } from "./config/db.ts";
+import userRouter from "./routes/user.ts";
 
 const app = express();
 
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(cors({
-    origin: env.BASE_URL,
+    origin: env.FRONT_URL,
     credentials: true
 }));
 app.use("/auth", authRouter);
-
+app.use("/user", userRouter);
 // Swagger setup
 const swaggerDocument = YAML.load("./src/docs/swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
