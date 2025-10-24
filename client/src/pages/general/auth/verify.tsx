@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { CheckCircleIcon, Loader2, XCircleIcon } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+useParams
 export const Verify = ( ) => {
 	const location = useLocation()
 	const navigate = useNavigate()
