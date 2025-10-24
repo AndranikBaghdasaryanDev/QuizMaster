@@ -114,6 +114,143 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseError'
+  /user/verify:
+    post:
+      summary: Verify a user's email using a token
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        '200':
+          description: Email successfully verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Successfully verified"
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+  /user/forgot:
+    post:
+      summary: Send a password reset link to user's email
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+      responses:
+        '200':
+          description: Password reset link sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "The link for reseting the password was sent to your email. Please enter by that link and change your password."
+        '400':
+          description: Invalid payload or email not verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+
+  /user/reset:
+    post:
+      summary: Reset user's password using a valid token
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+              required:
+                - token
+                - password
+      responses:
+        '200':
+          description: Password successfully reset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Your password got reset successfully"
+        '400':
+          description: Invalid payload or password requirements not met
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '404':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+
 
 components:
   securitySchemes:
