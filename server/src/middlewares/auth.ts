@@ -28,7 +28,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     return res.status(401).send({ error: true, message: "Invalid token" });
   }
 
-  const user = await User.findById(decoded.id).select("-password");
+  const user = await User.findById(decoded.id).select("-password -verifyToken -verifyExpires");
 
   if (!user) {
     return res.status(404).send({ error: true, message: "Not found" });

@@ -161,11 +161,6 @@ components:
           type: string
         isVerified:
           type: boolean
-        verifyToken:
-          type: string
-        verifyExpires:
-          type: string
-          format: date-time
       required:
         - _id
         - name
