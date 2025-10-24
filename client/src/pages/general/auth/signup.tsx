@@ -61,7 +61,7 @@ export const SignUp = () => {
 
 					{/* Name & Username */}
 					<form onSubmit={handleSubmit(handleSignUp)}>
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+						<div className="grid grid-row-1 sm:grid-row-2 gap-3 mb-3">
 							<div>
 								{errors.name && (
 									<div className="flex items-start bg-red-100 border border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-md animate-slide-fade max-w-md">
@@ -75,12 +75,12 @@ export const SignUp = () => {
 
 								<div className="relative">
 									<FaUser className="absolute left-3 top-11 text-gray-400" />
-									<label className="block mt-2 py-1">Full Name</label>
+									<label className="block mt-2 py-1">Name</label>
 									<input
 
 										type="text"
 										placeholder="John Doe"
-										className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+										className={`border border-gray-300 rounded-md px-10 py-2  placeholder-gray-400  w-full ${errors.name ? "outline-red-500" : "focus:outline-purple-500"}`}
 										{...register("name", { required: "Please input your Name" })}
 									/>
 								</div>
@@ -102,7 +102,7 @@ export const SignUp = () => {
 									<input
 										type="text"
 										placeholder="JohnDoe123"
-										className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+										className={`border border-gray-300 rounded-md px-10 py-2  placeholder-gray-400  w-full ${errors.username ? "outline-red-500" : "focus:outline-purple-500"}`}
 										{...register("username", { required: "Please input UserName" })}
 
 									/>
@@ -132,7 +132,7 @@ export const SignUp = () => {
 								<input
 									type="email"
 									placeholder="name@example.com"
-									className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+									className={`border border-gray-300 rounded-md px-10 py-2  placeholder-gray-400  w-full ${errors.email ? "outline-red-500" : "focus:outline-purple-500"}`}
 									{...register("email", { required: "Please input your Email" })}
 
 								/>
@@ -156,7 +156,7 @@ export const SignUp = () => {
 								<input
 									type="password"
 									placeholder="*************"
-									className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+									className={`border border-gray-300 rounded-md px-10 py-2  placeholder-gray-400  w-full ${errors.password ? "outline-red-500" : "focus:outline-purple-500"}`}
 									{...register("password", { required: "Please input your Password" })}
 								/>
 							</div>

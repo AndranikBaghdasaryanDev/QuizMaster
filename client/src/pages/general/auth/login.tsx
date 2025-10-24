@@ -78,7 +78,7 @@ export const Login = () => {
 								<input
 									type="email"
 									placeholder="name@example.com"
-									className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+									className={`border border-gray-300 rounded-md px-10 py-2  placeholder-gray-400  w-full ${errors.email ? "outline-red-500" : "focus:outline-purple-500"}`}
 									{...register("email", { required: "Please input your Email" })}
 
 								/>
@@ -102,7 +102,7 @@ export const Login = () => {
 								<input
 									type="password"
 									placeholder="*************"
-									className="border border-gray-300 rounded-md px-10 py-2 opacity-70 w-full focus:outline-purple-500"
+									className={`border border-gray-300 rounded-md px-10 py-2  placeholder-gray-400  w-full ${errors.password ? "outline-red-500" : "focus:outline-purple-500"}`}
 									{...register("password", { required: "Please input your Password" })}
 								/>
 							</div>
