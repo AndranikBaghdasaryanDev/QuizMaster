@@ -50,7 +50,7 @@ class UserController {
             const user = await User.create({
                 name, username, email, password,
                 verifyToken: hashedToken,
-                verifyExpires: Date.now() + 1000 * 60 * 20, // 20 minutes
+                verifyExpires: new Date(Date.now() + Number(env.TOKEN_EXPIRE_TIME)), // 5 minutes
             });
 
             await sendMail(
@@ -85,6 +85,15 @@ class UserController {
                 return res.status(400).send({ error: true, message: "Invalid credentials" });
             }
             if (!user.isVerified) {
+                if (user.verifyExpires && user.verifyExpires < new Date()) {
+                    const rawToken = crypto.randomBytes(32).toString("hex");
+                    const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+                    user.verifyToken = hashedToken;
+                    user.verifyExpires = new Date(Date.now() + Number(env.TOKEN_EXPIRE_TIME));
+                    await user.save();
+                    await sendMail(user.email, "Verify your Quiz Master Account",
+                getVerifyEmailTemplate(user.name, hashedToken))
+                }
                 return res.status(403).send({ error: true, message: "Please verify your email before logging in" });
             }
             const isValid = await bcrypt.compare(password, user.password);
@@ -99,31 +108,34 @@ class UserController {
     }
     
     async getUser(req: Request, res: Response) {
-        console.log(req.user);
         return res.send({ error: false, message: "Success", payload: { user: req.user } });
     }
 
     async verifyEmail(req: Request, res: Response) {
-        if (!req.body) {
-            return res.status(400).send({ error: true, message: "Payload is required" });
+        try {
+            if (!req.body) {
+                return res.status(400).send({ error: true, message: "Payload is required" });
+            }
+            const { token } = req.body;
+            if (!token) {
+                return res.status(400).send({ error: true, message: "Invalid payload" });
+            }
+            
+            const user = await User.findOne({ verifyToken: token, verifyExpires: { $gt: new Date() } });
+            
+            if (!user) {
+                return res.status(400).send({ error: true, message: "Invalid/expired token" });
+            }
+            
+            user.isVerified = true;
+            user.verifyToken = null;
+            user.verifyExpires = null;
+            await user.save();
+            
+            return res.send({ error: false, message: "Successfully verified" });
+        } catch(err) {
+            return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
-        const { token } = req.body;
-        if (!token) {
-            return res.status(400).send({ error: true, message: "Invalid payload" });
-        }
-
-        const user = await User.findOne({ verifyToken: token, verifyExpires: { $gt: new Date() } });
-
-        if (!user) {
-            return res.status(400).send({ error: true, message: "Invalid/expired token" });
-        }
-
-        user.isVerified = true;
-        user.verifyToken = null;
-        user.verifyExpires = null;
-        await user.save();
-        
-        return res.send({ error: false, message: "Successfully verified" });
     }
 }
 
