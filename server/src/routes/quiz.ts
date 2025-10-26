@@ -5,6 +5,6 @@ import { authMiddleware } from "../middlewares/auth.ts";
 const quizRouter = express.Router();
 
 quizRouter.use(authMiddleware);
-quizRouter.post("/add", quizController.addQuiz.bind(quizController));
+quizRouter.post("/", quizController.addQuiz.bind(quizController));
 
 export default quizRouter;

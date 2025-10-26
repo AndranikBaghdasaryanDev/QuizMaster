@@ -9,6 +9,8 @@ servers:
     description: Local development server
 
 paths:
+  # --- Auth Endpoints ---
+
   /auth/signup:
     post:
       summary: Register a new user
@@ -114,6 +116,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseError'
+  # --- User Endpoints ---
+  
   /user/verify:
     post:
       summary: Verify a user's email using a token
@@ -250,7 +254,123 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseError'
+  
+  # --- Quiz Endpoints ---
+  /quiz:
+    post:
+      summary: Add a new quiz
+      tags:
+        - Quiz
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IQuizCreate'
+      responses:
+        '201':
+          description: Quiz created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseQuiz'
+        '400':
+          description: Invalid payload or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
 
+  /quiz:
+    get:
+      summary: Get all quizzes
+      tags:
+        - Quiz
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of quizzes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Quizzes fetched successfully"
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/IQuiz'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+
+  /quiz/{id}:
+    get:
+      summary: Get a single quiz by ID
+      tags:
+        - Quiz
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Quiz fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseQuiz'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
 
 components:
   securitySchemes:
@@ -335,3 +455,125 @@ components:
           type: string
         payload:
           type: object
+    IAnswer:
+      type: object
+      properties:
+        text:
+          type: string
+          example: "4"
+        isCorrect:
+          type: boolean
+          example: true
+      required:
+        - text
+        - isCorrect
+
+    IQuestion:
+      type: object
+      properties:
+        text:
+          type: string
+          example: "What is 2 + 2?"
+        type:
+          type: string
+          enum:
+            - single
+            - multiple
+            - input
+          example: "single"
+        points:
+          type: integer
+          default: 1
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/IAnswer'
+          nullable: true
+        inputAnswer:
+          type: string
+          nullable: true
+      required:
+        - text
+        - type
+
+    IQuizCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Math Basics"
+        description:
+          type: string
+          example: "A quiz on basic math operations"
+        access:
+          type: string
+          enum:
+            - free
+            - pro
+            - premium
+          example: "free"
+        isActive:
+          type: boolean
+          default: true
+        availableFrom:
+          type: string
+          format: date-time
+          nullable: true
+        availableUntil:
+          type: string
+          format: date-time
+          nullable: true
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/IQuestion'
+      required:
+        - title
+        - description
+        - questions
+
+    IQuiz:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "650c1f1a2e5b6f001234abcd"
+        title:
+          type: string
+          example: "Math Basics"
+        description:
+          type: string
+          example: "A quiz on basic math operations"
+        owner_id:
+          type: string
+          example: "64f633442aadd4e271147ae"
+        access:
+          type: string
+          example: "free"
+        isActive:
+          type: boolean
+          example: true
+        availableFrom:
+          type: string
+          format: date-time
+          nullable: true
+        availableUntil:
+          type: string
+          format: date-time
+          nullable: true
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/IQuestion'
+
+    IResponseQuiz:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Quiz added successfully"
+        payload:
+          $ref: '#/components/schemas/IQuiz'
