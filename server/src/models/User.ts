@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const userScheme = new mongoose.Schema(
+const userScheme = new Schema(
     {
         name: {
             type: String,
@@ -28,11 +28,28 @@ const userScheme = new mongoose.Schema(
         verifyToken: String,
         verifyExpires: Date,
         resetToken: String,
-        resetExpires: Date
+        resetExpires: Date,
+        bio: String,
+        subscription: {
+            plan: {
+                type: String,
+                enum: [ "free", "pro", "premium" ],
+                default: "free"
+            },
+            expires: Date
+        },
+        quizzesCreated: [{ type: Schema.Types.ObjectId, ref: "Quiz" }],
+        quizzesTaken: [
+            {
+                type: Schema.Types.ObjectId, ref: "Quiz",
+                score: Number,
+                completedAt: Date
+            }
+        ]
     },
     {
         timestamps: true
     }
 );
 
-export const User = mongoose.model("User", userScheme);
+export const User = model("User", userScheme);
