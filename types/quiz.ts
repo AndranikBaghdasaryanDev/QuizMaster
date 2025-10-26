@@ -1,10 +1,30 @@
-import { Schema, model, Types } from "mongoose";
+import type { ObjectId } from "mongodb";
 
-interface IQuestion {
+export interface IAnswer {
+  _id: string | ObjectId;
   text: string;
-  options: string[];
-  answer: number; // index of the correct option
-  quiz_id?: Types.ObjectId; // optional back-reference
+  isCorrect: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IQuestion {
+  _id: string;
+  text: string;
+  type: "single" | "multiple" | "input";
+  options: IAnswer[] | null;
+  inputAnswer: string | null;
+  points: number; 
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IQuiz {
+  _id: string;
+  title: string;
+  description: string;
+  owner_id: string | ObjectId;
+  questions: IQuestion[];
   createdAt?: Date;
   updatedAt?: Date;
 }

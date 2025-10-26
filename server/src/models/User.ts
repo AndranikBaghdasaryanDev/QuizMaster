@@ -37,15 +37,7 @@ const userScheme = new Schema(
                 default: "free"
             },
             expires: Date
-        },
-        quizzesCreated: [{ type: Schema.Types.ObjectId, ref: "Quiz" }],
-        quizzesTaken: [
-            {
-                type: Schema.Types.ObjectId, ref: "Quiz",
-                score: Number,
-                completedAt: Date
-            }
-        ]
+        }
     },
     {
         timestamps: true

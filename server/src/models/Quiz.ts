@@ -19,7 +19,18 @@ const quizSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: "Question"
         }
-    ]
+    ],
+    access: {
+        type: String,
+        enum: [ "free", "pro", "premium" ],
+        default: "free"
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    availableFrom: Date,
+    availableUntil: Date
 });
 
 export const Quiz = model("Quiz", quizSchema);
