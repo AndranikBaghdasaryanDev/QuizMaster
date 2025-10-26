@@ -202,7 +202,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseError'
-
   /user/reset:
     post:
       summary: Reset user's password using a valid token
@@ -268,7 +267,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IQuizCreate'
+              $ref: '#/components/schemas/IResponseQuiz'
       responses:
         '201':
           description: Quiz created successfully
