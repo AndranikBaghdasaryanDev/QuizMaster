@@ -9,7 +9,7 @@ class Validator {
         return /^[a-z0-9_-]{3,15}$/.test(val);
     }
     isValidPassword(val: string) {
-        return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/.test(val);
+        return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-.]).{8,}$/.test(val);
     }
     isValidEmail(val: string) {
         return /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/.test(val);
