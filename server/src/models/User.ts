@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const userScheme = new mongoose.Schema(
+const userScheme = new Schema(
     {
         name: {
             type: String,
@@ -26,11 +26,22 @@ const userScheme = new mongoose.Schema(
             default: false
         },
         verifyToken: String,
-        verifyExpires: Date
+        verifyExpires: Date,
+        resetToken: String,
+        resetExpires: Date,
+        bio: String,
+        subscription: {
+            plan: {
+                type: String,
+                enum: [ "free", "pro", "premium" ],
+                default: "free"
+            },
+            expires: Date
+        }
     },
     {
         timestamps: true
     }
 );
 
-export const User = mongoose.model("User", userScheme);
+export const User = model("User", userScheme);

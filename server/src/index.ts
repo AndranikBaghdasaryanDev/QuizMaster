@@ -1,6 +1,6 @@
 import express from "express";
 import { env } from "./config/env.ts";
-import authRouter from "./routes/auth.ts";
+import { authRouter, userRouter, quizRouter } from "./routes/index.ts";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
@@ -12,10 +12,13 @@ const app = express();
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(cors({
-    origin: env.BASE_URL,
+    origin: env.FRONT_URL,
     credentials: true
 }));
+
 app.use("/auth", authRouter);
+app.use("/user", userRouter);
+app.use("/quiz", quizRouter);
 
 // Swagger setup
 const swaggerDocument = YAML.load("./src/docs/swagger.yaml");
@@ -25,7 +28,8 @@ const startServer = async () => {
   try {
     await connectDB();
     const URL = `${env.BASE_URL}:${env.PORT}`;
-    app.listen(env.PORT, () => console.log(`Server running at ${URL}`));
+    const SWAGGER = `${env.BASE_URL}:${env.PORT}/api-docs`
+    app.listen(env.PORT, () => console.log(`Server running at ${URL}, ${SWAGGER}`));
   } catch (err) {
     console.error("Failed to connect to DB", err);
     process.exit(1);

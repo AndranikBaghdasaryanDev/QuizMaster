@@ -1,4 +1,3 @@
-import JWT from "jsonwebtoken";
 import { env } from "../config/env.ts";
 import { User } from "../models/index.ts";
 import type { Request, Response } from "express";
@@ -6,125 +5,138 @@ import validator from "../lib/validator.ts";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { sendMail } from "../lib/mail.ts";
-import { getVerifyEmailTemplate } from "../lib/templates/verifyEmail.ts";
+import { getForgotPasswordTemplate } from "../lib/templates/forgotPassword.ts";
 
 class UserController {
-    async signup(req: Request, res: Response) {
-        if (!req.body) {
-            return res.status(400).send({ error: true, message: "Payload is required." });
-        }
-
-        let { name, username, email, password } = req.body;
-        
-        if (!name || !validator.isValidLen(name)) {
-            return res.status(400).send({ error: true, message: "Name must be 2-100 cahracter long." });
-        }
-
-        if (!username || !validator.isValidUsername(username)) {
-            return res.status(400).send({ error: true, message: "Username should contain only lowercase letters, digits, underscores and hyphens with length 3-15 character." });
-        }
-
-        if (!email || !validator.isValidEmail(email)) {
-            return res.status(400).send({ error: true, message: "Invalid email." });
-        }
-
-        const user = await User.findOne({ 
-            $or: [
-                { email: email },
-                { username: username }
-            ]
-        });
-
-        if (user) {
-            return res.status(400).send({ error: true, message: "Email/Username is busy" });
-        }
-
-        if (!password || !validator.isValidPassword(password)) {
-            return res.status(400).send({ error: true, message: "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character (#?!@$ %^&*-)." });
-        }
-        
-        try {
-            password = await bcrypt.hash(password, 10);
-            const rawToken = crypto.randomBytes(32).toString("hex");
-            const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
-            const user = await User.create({
-                name, username, email, password,
-                verifyToken: hashedToken,
-                verifyExpires: Date.now() + 1000 * 60 * 20, // 20 minutes
-            });
-
-            await sendMail(
-                email,
-                "Verify your Quiz Master Account",
-                getVerifyEmailTemplate(name, hashedToken)
-            );
-              
-            return res.status(201).send({ error: false, message: "Please verify your email to complete registration.", payload: user._id });
-        } catch(err) {
-            return res.status(500).send({ error: true, message: "Server error", payload: err });
-        }
-
+  async verifyEmail(req: Request, res: Response) {
+    if (!req.body) {
+      return res
+        .status(400)
+        .send({ error: true, message: "Payload is required" });
     }
-    
-    async login(req: Request, res: Response) {
-        if (!req.body) {
-            return res.status(400).send({ error: true, message: "Payload is required" });
-        }
-        const { email, password } = req.body;
-        if (!email || !validator.isValidEmail(email)) {
-            return res.status(400).send({ error: true, message: "Invalid email" });
-        }
-        if (!password) {
-            return res.status(400).send({ error: true, message: "Invalid payload" });
-        }
-        console.log("logging in...");
-        try { 
-
-            const user = await User.findOne({ email });
-            if (!user) {
-                return res.status(400).send({ error: true, message: "Invalid credentials" });
-            }
-            if (!user.isVerified) {
-                return res.status(403).send({ error: true, message: "Please verify your email before logging in" });
-            }
-            const isValid = await bcrypt.compare(password, user.password);
-            if (!isValid) {
-                return res.status(400).send({ error: true, message: "Invalid credentials" });
-            }
-            const token = JWT.sign({ id: user._id.toString() }, env.JWT_SECRET as string, { expiresIn: '1h' });
-            return res.send({ error: false, message: "Success", payload: { token } });
-        } catch(err) {
-            return res.status(500).send({ error: true, message: "Server error", payload: err });
-        }
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).send({ error: true, message: "Invalid payload" });
     }
-    
-    async getUser(req: Request, res: Response) {
-        console.log(req.user);
-        return res.send({ error: false, message: "Success", payload: { user: req.user } });
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      verifyToken: hashedToken,
+      verifyExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .send({ error: true, message: "Invalid/expired token" });
     }
 
-    async verifyEmail(req: Request, res: Response) {
-        if (!req.body) {
-            return res.status(400).send({ error: true, message: "Payload is required" });
-        }
-        const { token } = req.body;
-        if (!token) {
-            return res.status(400).send({ error: true, message: "Invalid payload" });
-        }
+    user.isVerified = true;
+    user.verifyToken = null;
+    user.verifyExpires = null;
+    await user.save();
 
-        const user = await User.findOne({ verifyToken: token, verifyExpires: { $gt: new Date() } });
+    return res.send({ error: false, message: "Successfully verified" });
+  }
 
-        if (!user) {
-            return res.status(400).send({ error: true, message: "Invalid/expired token" });
-        }
-
-        user.isVerified = true;
-        user.verifyToken = null;
-        user.verifyExpires = null;
+  async forgotPassword(req: Request, res: Response) {
+    try {
+      if (!req.body) {
+        return res
+          .status(400)
+          .send({ error: true, message: "Payload is required" });
+      }
+      const { email } = req.body;
+      if (!email) {
+        return res
+          .status(400)
+          .send({ error: true, message: "Invalid payload" });
+      }
+      const user = await User.findOne({ email });
+      if (user && !user.isVerified) {
+        return res
+          .status(400)
+          .send({
+            error: true,
+            message: "Before changing password you need to verify your email",
+          });
+      }
+      if (user) {
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto
+          .createHash("sha256")
+          .update(rawToken)
+          .digest("hex");
+        user.resetToken = hashedToken;
+        user.resetExpires = new Date(
+          Date.now() + Number(env.TOKEN_EXPIRE_TIME)
+        );
         await user.save();
-        
-        return res.send({ error: false, message: "Successfully verified" });
+        await sendMail(
+          user.email,
+          "Forgot Password",
+          getForgotPasswordTemplate(user.name, rawToken)
+        );
+      }
+      return res.send({
+        error: false,
+        message:
+          "The link for reseting the password was sent to your email. Please enter by that link and change your password.",
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .send({ error: true, message: "Server error", payload: err });
     }
+  }
+  async resetPassword(req: Request, res: Response) {
+    try {
+      if (!req.body) {
+        return res
+          .status(400)
+          .send({ error: true, message: "Payload is required" });
+      }
+      const { token, password } = req.body;
+      if (!token) {
+        return res
+          .status(400)
+          .send({ error: true, message: "Invalid payload" });
+      }
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+      const user = await User.findOne({
+        resetToken: hashedToken,
+        resetExpires: { $gt: new Date() },
+      });
+      if (!user) {
+        return res
+          .status(404)
+          .send({ error: true, message: "Invalid/expired token" });
+      }
+      if (!password || !validator.isValidPassword(password)) {
+        return res
+          .status(400)
+          .send({
+            error: true,
+            message:
+              "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character (#?!@$ %^&*-).",
+          });
+      }
+      user.password = await bcrypt.hash(password, 10);
+      user.resetToken = null;
+      user.resetExpires = null;
+      await user.save();
+      return res.send({
+        error: false,
+        message: "Your password got reset successfully",
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .send({ error: true, message: "Server error", payload: err });
+    }
+  }
 }
 
 export default new UserController();
