@@ -6,6 +6,8 @@ import { Mail } from "./pages/general/main/main";
 import { Verify } from "./pages/general/auth/verify";
 import { ForgotPassword } from "./pages/general/auth/forgotPassword";
 import { ForgotVerify } from "./pages/general/auth/forgotVerify";
+import { Layout } from "./pages/general/profileUser/layout";
+import { Dashboard } from "./pages/general/profileUser/pagesUser/dashboard";
  
 export const router = createBrowserRouter([
 	{path:"",element:<Mail/> },
@@ -13,5 +15,8 @@ export const router = createBrowserRouter([
 	{ path: "/login", element: <Login/> },
 	{path:"/verify",element:<Verify/>},
 	{path:"/forgot",element:<ForgotVerify/>},
-	{path:"forgotPassword",element:<ForgotPassword/>}
+	{path:"/forgotPassword",element:<ForgotPassword/>},
+	{path:"/profile",element:<Layout/>, children :[
+		{ path: "", element: <Dashboard /> },
+	]}
 ]);

@@ -20,10 +20,12 @@ export const Login = () => {
 		Axios
 		.post("/auth/login",data)
 		.then(response => {
+			console.log(response.data)
 			setError(response.data)
 			setTimeout(() => {
 				setLoader(true)
 				setTimeout(() => {
+					localStorage.setItem("token", response.data.payload.token)
 					navigate("/profile")
 				},3000)
 			},3000)
