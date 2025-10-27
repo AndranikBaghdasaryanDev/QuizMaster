@@ -12,8 +12,6 @@ export const Verify = ( ) => {
 	const searchParams = new URLSearchParams(location.search)
 	const token = searchParams.get("token")
 	useEffect(() => {
-		{/* Read token with URL */}
-		console.log(token)
 		if(!token) navigate("/signup")
 		Axios
 		.post<IResponse<{}>>("/user/verify",{token:token})
@@ -75,7 +73,7 @@ export const Verify = ( ) => {
 						<p className="text-gray-400 max-w-sm text-center">
 							Your email has been successfully verified. You can now log in and start using QuizMaster!
 						</p>
-						
+
 						<Link
 							to="/login"
 							className="z-10000"

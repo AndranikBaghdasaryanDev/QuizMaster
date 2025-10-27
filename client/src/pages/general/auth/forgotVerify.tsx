@@ -1,41 +1,36 @@
+import { useEffect, useState } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import type { IResponse } from "../../../../../types/response"
+import { Axios } from "../../../api"
+import { useForm } from "react-hook-form"
+import { FaArrowLeft, FaLock } from "react-icons/fa"
 
-import { Link, useNavigate } from "react-router-dom";
-import type { ILogIn, ISignUp } from "../../../../../types/user"
-import { useForm } from "react-hook-form";
-import { FaArrowLeft, FaLock, } from "react-icons/fa";
-import { FaEnvelope } from "react-icons/fa";
-import { Axios } from "../../../api";
-import { useState } from "react";
-import type { IResponse } from "../../../../../types/response";
-import { Loader } from "./miniHelpers/loader";
-
-
-export const Login = () => {
+export const ForgotVerify = () => {
+	const location = useLocation()
 	const navigate = useNavigate()
-	const { register, handleSubmit, formState: { errors } } = useForm<ISignUp>()
-	const [error,setError] = useState<IResponse<{token: string}>>()
-	const [loader,setLoader] = useState(false)
-	const handleSignIn = (data: ILogIn) => {
-		console.log(data)
+	const searchParams = new URLSearchParams(location.search)
+	const token = searchParams.get("token")
+	const [error, setError] = useState<IResponse<{} | undefined>>()
+	const { register, handleSubmit, formState: { errors } } = useForm<{ password: string }>()
+	useEffect(() => {
+		if (!token) navigate("/forgotPassword")
+	})
+	const handleForgot = (data: { password: string }) => {
+		console.log({ ...data, token: token })
 		Axios
-		.post("/auth/login",data)
-		.then(response => {
-			setError(response.data)
-			setTimeout(() => {
-				setLoader(true)
+			.post("/user/reset", { ...data, token: token })
+			.then(resposne => {
+				setError(resposne.data)
 				setTimeout(() => {
-					navigate("/profile")
-				},3000)
-			},3000)
-		}) 
-		.catch(error => {
-			setError(error.response.data)
-		})
-		setError({error:null,message:"Please Wait..."})
+					navigate("/login")
+				}, 4000)
+			})
+			.catch(error => {
+				setError(error.response.data)
+			})
+		setError({ error: null, message: "Changing..." })
 	}
 	return <>
-		{loader ? <Loader/>
-			: 
 		<div className="flex flex-col md:flex-row min-h-screen">
 
 			{/* Left Side: Background + Logo */}
@@ -55,22 +50,7 @@ export const Login = () => {
 			{/* Right Side: Form */}
 			<div className="md:flex-1 flex items-center justify-center bg-white px-4 py-8">
 				<div className="w-full max-w-md p-6 rounded-lg shadow-lg">
-					<h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Welcome Back</h2>
-					<p className="text-gray-500 text-sm mb-4 text-center">
-						Choose your account type and start your journey with us
-					</p>
-
-					{/* Social Login */}
-					<div className="flex flex-col sm:flex-row justify-center mb-4 gap-2">
-						<button className="flex-1 border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition">
-							<img
-								src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-								className="w-5 h-5"
-								alt="Google"
-							/>
-							Google
-						</button>
-					</div>
+					<h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Change Password</h2>
 
 					{error && (
 						<div className="mb-6">
@@ -120,43 +100,8 @@ export const Login = () => {
 						</div>
 					)}
 
-
-					{/* Divider */}
-					<div className="flex items-center justify-center text-gray-400 text-sm mb-4">
-						<span className="border-t w-1/3"></span>
-						<span className="px-2">OR</span>
-						<span className="border-t w-1/3"></span>
-					</div>
-
 					{/* Name & Username */}
-					<form onSubmit={handleSubmit(handleSignIn)}>
-						{/* Email */}
-						<div className="relative mb-3">
-							{errors.email && (
-								<div className="flex items-start bg-red-100 border border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-md animate-slide-fade max-w-md">
-									<span className="mr-3 text-xl animate-pulse">⚠️</span>
-									<div className="flex-1">
-										<p className="font-semibold">{errors.email.message}</p>
-										<p className="text-xs mt-1 text-red-600">Please correct this error to continue</p>
-									</div>
-								</div>
-							)}
-
-
-
-
-							<div className="relative">
-								<FaEnvelope className="absolute left-3 top-11 text-gray-400" />
-								<label className="block mt-2 py-1">Email</label>
-								<input
-									type="email"
-									placeholder="name@example.com"
-									className={`border border-gray-300 rounded-md px-10 py-2  placeholder-gray-400  w-full ${errors.email ? "outline-red-500" : "focus:outline-purple-500"}`}
-									{...register("email", { required: "Please input your Email" })}
-
-								/>
-							</div>
-						</div>
+					<form onSubmit={handleSubmit(handleForgot)}>
 
 						{/* Password */}
 						<div className="mb-5">
@@ -180,31 +125,23 @@ export const Login = () => {
 								/>
 							</div>
 						</div>
-
-						{/* Submit Button */}
 						<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition">
 							Log in
 						</button>
-					</form>
-
-					{/* Footer */}
 						<p className="text-center text-sm text-gray-500 mt-3">
-							forgot password?{" "}
-							<Link to={"/forgotPassword"} className="text-purple-600 font-medium hover:underline">
-								forgot
+							Already have an account?{" "}
+							<Link to={"/login"} className="text-purple-600 font-medium hover:underline">
+								Log In
 							</Link>
 						</p>
-					<p className="text-center text-sm text-gray-500 mt-3">
-						Already have an account?{" "}
-						<Link to={"/signup"} className="text-purple-600 font-medium hover:underline">
-							Sign Up
-						</Link>
-					</p>
+						{/* Submit Button */}
+					</form>
 				</div>
+
 			</div>
 			<div className="absolute right-0 top-0">
 				<Link
-					to="/"
+					to="/forgotPassword"
 				>
 					<FaArrowLeft
 						className=" mr-15 mt-10 text-gray-500 text-shadow-black text-3xl z-100 from-[#5813C1] to-[#C45037] bg-clip-text transition-transform duration-300 group-hover:-translate-x-1 drop-shadow-[0_0_8px_rgba(196,80,55,0.5)] cursor-pointer"
@@ -212,6 +149,5 @@ export const Login = () => {
 				</Link>
 			</div>
 		</div>
-		}
 	</>
-};
+}
