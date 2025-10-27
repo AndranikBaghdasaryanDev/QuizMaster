@@ -20,6 +20,7 @@ const quizSchema = new Schema({
             ref: "Question"
         }
     ],
+    image: String,
     access: {
         type: String,
         enum: [ "free", "pro", "premium" ],
