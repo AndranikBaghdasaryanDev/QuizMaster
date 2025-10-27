@@ -1,5 +1,5 @@
 export interface IResponse<T> {
-    error: boolean;
+    error: boolean | null;
     message: string;
     payload?: T;
 }
