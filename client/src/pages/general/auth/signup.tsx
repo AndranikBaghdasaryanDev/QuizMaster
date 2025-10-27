@@ -12,18 +12,15 @@ export const SignUp = () => {
 	const [error,setError] = useState<IResponse<{id:string} | undefined>>()
 	const handleSignUp = (data:ISignUp) => {
 		
-		console.log(data)
 		Axios
 		.post("/auth/signup",data)
 		.then(response => {
-			console.log(response.data)
 			setError(response.data)
 		})
 		.catch(error => {
-			console.log(error.response.data)
 			setError(error.response.data)
 		})
-		setError({error:null,message:"loading..."})
+		setError({error:null,message:"Please wait..."})
 	}
 	return (
 		<div className="flex flex-col md:flex-row min-h-screen relative">
@@ -86,7 +83,7 @@ export const SignUp = () => {
 											d="M4 12a8 8 0 018-8v8H4z"
 										></path>
 									</svg>
-									<p className="text-sm tracking-wide">Creating your account...</p>
+									<p className="text-sm tracking-wide">{error.message}</p>
 								</div>
 							) : error.error ? (
 								// 🔴 Error message
