@@ -12,3 +12,9 @@ export interface IUser {
 
 export type ISignUp = Omit<IUser, "id">;
 export type ILogIn = Pick<IUser, "email" | "password">;
+export type IForgotPassword = Pick<IUser, "email">
+
+export interface IOutletContext{
+    account:IUser
+    setAccount(account:IUser):void
+}
