@@ -1,27 +1,41 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { ILogIn, ISignUp } from "../../../../../types/user"
 import { useForm } from "react-hook-form";
 import { FaArrowLeft, FaLock, } from "react-icons/fa";
 import { FaEnvelope } from "react-icons/fa";
 import { Axios } from "../../../api";
+import { useState } from "react";
+import type { IResponse } from "../../../../../types/response";
+import { Loader } from "./miniHelpers/loader";
 
 
 export const Login = () => {
+	const navigate = useNavigate()
 	const { register, handleSubmit, formState: { errors } } = useForm<ISignUp>()
+	const [error,setError] = useState<IResponse<{token: string}>>()
+	const [loader,setLoader] = useState(false)
 	const handleSignIn = (data: ILogIn) => {
 		console.log(data)
 		Axios
 		.post("/auth/login",data)
 		.then(response => {
-			console.log("hello")
-			console.log(response.data)
+			setError(response.data)
+			setTimeout(() => {
+				setLoader(true)
+				setTimeout(() => {
+					navigate("/profile")
+				},3000)
+			},3000)
 		}) 
 		.catch(error => {
-			console.log(error.response.data)
+			setError(error.response.data)
 		})
+		setError({error:null,message:"Please Wait..."})
 	}
-	return (
+	return <>
+		{loader ? <Loader/>
+			: 
 		<div className="flex flex-col md:flex-row min-h-screen">
 
 			{/* Left Side: Background + Logo */}
@@ -57,6 +71,55 @@ export const Login = () => {
 							Google
 						</button>
 					</div>
+
+					{error && (
+						<div className="mb-6">
+							{error.error === null ? (
+								// 🔵 Loading state
+								<div className="flex items-center justify-center gap-3 bg-linear-to-r from-purple-700 via-fuchsia-600 to-pink-500 text-white font-medium py-3 px-6 rounded-xl shadow-[0_0_20px_rgba(216,70,239,0.5)] animate-pulse">
+									<svg
+										className="w-5 h-5 animate-spin text-white/90"
+										fill="none"
+										viewBox="0 0 24 24"
+									>
+										<circle
+											className="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											strokeWidth="4"
+										></circle>
+										<path
+											className="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8v8H4z"
+										></path>
+									</svg>
+									<p className="text-sm tracking-wide">{error.message}</p>
+								</div>
+							) : error.error ? (
+								// 🔴 Error message
+								<div className="flex items-center gap-3 bg-linear-to-r from-red-900/70 via-red-800/60 to-red-700/70 border border-red-500/60 text-red-300 py-3 px-5 rounded-xl shadow-[0_0_15px_rgba(255,0,0,0.3)] backdrop-blur-md animate-fade-in">
+									<span className="text-2xl animate-bounce">❌</span>
+									<div>
+										<p className="font-semibold text-red-300">{error.message}</p>
+										<p className="text-xs text-red-400 mt-1">Please check your input and try again.</p>
+									</div>
+								</div>
+							) : (
+								// 🟢 Success message
+								<div className="flex items-center gap-3 bg-linear-to-r from-emerald-900/70 via-green-800/60 to-teal-700/70 border border-green-500/60 text-green-300 py-3 px-5 rounded-xl shadow-[0_0_15px_rgba(0,255,120,0.4)] backdrop-blur-md animate-fade-in">
+									<span className="text-2xl animate-bounce">✅</span>
+									<div>
+										<p className="font-semibold">{error.message}</p>
+										<p className="text-xs text-green-400 mt-1">Redirecting you shortly...</p>
+									</div>
+								</div>
+							)}
+						</div>
+					)}
+
 
 					{/* Divider */}
 					<div className="flex items-center justify-center text-gray-400 text-sm mb-4">
@@ -143,5 +206,6 @@ export const Login = () => {
 				</Link>
 			</div>
 		</div>
-	);
+		}
+	</>
 };
