@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
 import type { IQuestion } from "@/quiz.ts";
-import { Quiz, Question, Category } from "../models/index.ts";
+import { Quiz, Question, Category, User } from "../models/index.ts";
 import validator from "../lib/validator.ts";
-import type { Types } from "mongoose";
+import mongoose, { type Types } from "mongoose";
 import type { IResponse } from "@/response.ts";
 import path from "path";
+import type { IUser } from "@/user.ts";
 
 class QuizController {
     async addQuiz(req: Request, res: Response) {
@@ -99,17 +100,72 @@ class QuizController {
         return { error: false, message: "ok", payload: questionsCreated.map(q => q._id) };
     }
     async getQuizzes(req: Request, res: Response) {
-        const { owner_id, access, limit, offset } = req.body ?? {};
-        const filter:any = {};
-        if (owner_id) {
-            filter.owner_id = owner_id;
-            if (!(owner_id == req.user?._id)) {
-                
+        try {
+
+            const { owner_id, access, level, category, limit, offset } = req.body ?? {};
+            
+            const filter:any = {};
+            const options:any = {};
+            
+            if (owner_id) {
+                filter.owner_id = owner_id;
+                if (!(owner_id == req.user?._id)) {
+                    
+                    const ownerDoc = await User.findById(owner_id)
+                    .select("-password -verifyToken -verifyExpires");
+                    
+                    if (!ownerDoc) {
+                        return res.status(404).send({ error: true, message: "Owner not found" });
+                    }
+                    
+                    filter.isActive = true;
+                    const now = new Date();
+                    filter.availableFrom = { $lte: now };
+                    filter.$or = [
+                        { availableUntil: { $gte: now }},
+                        { availableUntil: { $exists: false }}
+                    ];
+                }
             }
+            if (category) { filter.category = category; }
+            if (access) { 
+                const ACCESS_LEVELS = [ "free", "pro", "premium" ];
+                const levelIndex = ACCESS_LEVELS.indexOf(access);
+
+                if (levelIndex === -1) {
+                    return res.status(400).send({ error: true, message: "Invalid access level" });
+                }
+                const allowedAcccess = ACCESS_LEVELS.slice(0, levelIndex + 1);
+                filter.access = { $in: allowedAcccess }; 
+            }
+            if (level) { filter.level = level; }
+            
+            if (offset) { options.offset = Number(offset); }
+            if (limit) { options.limit = Number(limit); }
+            
+            const quizzes = await Quiz.find(filter, null, options);
+            return res.send({ error: false, message: "Success", payload: quizzes });
+        } catch(err) {
+            return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
     }
-    async getQuiz(req: Request, res: Response) {
+    async getQuizById(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+                return res.status(400).send({ error: true, message: "Invalid/missing Quiz ID" });
+            }
+            
+            const quiz = await Quiz.findById(id).populate("category");
+            if (!quiz) {
+                return res.status(404).send({ error: true, message: "Quiz not found" });
+            }
+            
+            return res.send({ error: false, message: "Success", payload: quiz });
 
+        } catch(err) {
+            return res.status(500).send({ error: true, message: "Server error", payload: err });
+        }
     }
 }
 

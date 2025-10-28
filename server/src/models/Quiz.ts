@@ -39,7 +39,10 @@ const quizSchema = new Schema({
         enum: [ "easy", "medium", "hard" ],
         required: [ true, "Quiz level is required" ]
     },
-    availableFrom: Date,
+    availableFrom: {
+        type: Date,
+        default: Date.now
+    },
     availableUntil: Date
 });
 
