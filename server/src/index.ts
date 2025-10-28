@@ -1,6 +1,6 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import { env } from "./config/env.ts";
-import { authRouter, userRouter, quizRouter } from "./routes/index.ts";
+import { authRouter, userRouter, quizRouter, categoryRouter } from "./routes/index.ts";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
@@ -26,6 +26,11 @@ app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/quiz", quizRouter);
+app.use("/category", categoryRouter);
+
+app.get("/", (req, res) => {
+  res.send({ error: false, message: "API is working" });
+});
 
 // Swagger setup
 const swaggerDocument = YAML.load("./src/docs/swagger.yaml");
