@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import type { IQuestion } from "@/quiz.ts";
-import { Quiz, Question } from "../models/index.ts";
+import { Quiz, Question, Category } from "../models/index.ts";
 import validator from "../lib/validator.ts";
 import type { Types } from "mongoose";
 import type { IResponse } from "@/response.ts";
@@ -21,6 +21,8 @@ class QuizController {
                 questions, 
                 isActive = true, 
                 access = "free", 
+                category,
+                level,
                 availableFrom, 
                 availableUntil 
             } = quizData;
@@ -36,6 +38,14 @@ class QuizController {
                 return res.status(400).send({ error: true, message: "At least 1 question should be added" });
             }
     
+            const categoryIsValid = await Category.findById(category);
+            if (!categoryIsValid) {
+                return res.status(404).send({ error: true, message: "Invalid category ID" });
+            }
+
+            if (!level || !(["easy", "medium", "hard"].includes(level))) {
+                return res.status(400).send({ error: true, message: "Invalid level" });
+            }
             // 3️⃣ Attach quiz image
             const quizImageUrl = req.files?.quizImage?.[0]
                 ? `/uploads/quiz/${req.files.quizImage[0].filename}`
@@ -65,6 +75,7 @@ class QuizController {
                 access,
                 questions: addQuestionsRes.payload,
                 isActive,
+                category,
                 availableFrom: availableFrom ? new Date(availableFrom) : null,
                 availableUntil: availableUntil ? new Date(availableUntil) : null,
                 image: quizImageUrl

@@ -30,6 +30,15 @@ const quizSchema = new Schema({
         type: Boolean,
         default: true
     },
+    category: {
+        type: Schema.Types.ObjectId,
+        ref: "Category"
+    },
+    level: {
+        type: String,
+        enum: [ "easy", "medium", "hard" ],
+        required: [ true, "Quiz level is required" ]
+    },
     availableFrom: Date,
     availableUntil: Date
 });

@@ -514,6 +514,12 @@ components:
         isActive:
           type: boolean
           default: true
+        category:
+          type: string
+          example: "64f633442aodd4e924847ae"
+        level:
+          type: string
+          example: "medium"
         availableFrom:
           type: string
           format: date-time
