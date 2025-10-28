@@ -1,11 +1,9 @@
 import type { Request, Response } from "express";
-import type { IQuestion } from "@/quiz.ts";
+import type { IQuestion, IQuizUploadFiles } from "@/quiz.ts";
 import { Quiz, Question, Category, User } from "../models/index.ts";
 import validator from "../lib/validator.ts";
 import mongoose, { type Types } from "mongoose";
 import type { IResponse } from "@/response.ts";
-import path from "path";
-import type { IUser } from "@/user.ts";
 
 class QuizController {
     async addQuiz(req: Request, res: Response) {
@@ -47,14 +45,16 @@ class QuizController {
             if (!level || !(["easy", "medium", "hard"].includes(level))) {
                 return res.status(400).send({ error: true, message: "Invalid level" });
             }
+
+            const files = req.files as unknown as IQuizUploadFiles;
             // 3️⃣ Attach quiz image
-            const quizImageUrl = req.files?.quizImage?.[0]
-                ? `/uploads/quiz/${req.files.quizImage[0].filename}`
+            const quizImageUrl = files.quizImage?.[0]
+                ? `/uploads/quiz/${files.quizImage[0].filename}`
                 : null;
     
             // 4️⃣ Attach question images
-            const questionImagesUrl = req.files?.questionImages
-                ? (req.files.questionImages as Express.Multer.File[]).map(f => `/uploads/question/${f.filename}`)
+            const questionImagesUrl = files?.questionImages
+                ? (files.questionImages as Express.Multer.File[]).map(f => `/uploads/question/${f.filename}`)
                 : [];
     
             const questionsWithImages = questions.map((q: IQuestion, idx: number) => ({
@@ -157,7 +157,11 @@ class QuizController {
             if (offset) { options.offset = Math.abs(Number(offset)); }
             if (limit) { options.limit = Math.abs(Number(limit)); }
             
-            const quizzes = await Quiz.find(filter, null, options);
+            if (Object.keys(filter).length === 0) {
+                filter.isActive = true;
+            }
+
+            const quizzes = await Quiz.find(filter, null, options).populate("category");
             return res.send({ error: false, message: "Success", payload: quizzes });
         } catch(err) {
             return res.status(500).send({ error: true, message: "Server error", payload: err });
