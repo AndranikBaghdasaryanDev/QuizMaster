@@ -11,13 +11,18 @@ import {
 import { useEffect, useState } from "react"
 import type { IUser } from "../../../../../types/user"
 import { Axios } from "../../../api"
+import { AddQuiz } from "./pagesUser/addQuiz"
 
 export const Layout = () => {
 	const [account, setAccount] = useState<IUser | undefined>()
+	const [active,setActive] = useState<boolean>(false)
 	const navigate = useNavigate()
 	useEffect(() => {
 		Axios.get("/auth/user")
-			.then((response) => setAccount(response.data.payload.user))
+			.then((response) => {
+				console.log(response.data.payload.user)
+				setAccount(response.data.payload.user)
+			})
 			.catch(() => navigate("/login"))
 	}, [])
 
@@ -93,15 +98,21 @@ export const Layout = () => {
             hover:from-[#8b5cf6] hover:via-[#a855f7] hover:to-[#f472b6]
             transition-all duration-200
             shadow-[0_0_25px_rgba(168,85,247,0.45)]
-          ">
+          "
+			onClick={() => setActive(true)}
+		  >
 						<PlusCircle className="w-5 h-5" />
 						Create Quiz
 					</button>
 				</div>
 
 				{/* === Page Content === */}
-				<Outlet />
-
+				<Outlet context={{account,setAccount}} />
+				{active && (
+					<div className="absolute inset-0 flex items-center justify-center z-50">
+						<AddQuiz active={active} setActive={setActive}/>
+					</div>
+				)}
 				{/* Optional soft ambient glow bottom-right */}
 				<div className="absolute bottom-0 right-0 w-[400px] h-[300px] bg-linear-to-br from-[#ec4899]/30 to-[#f97316]/30 blur-[150px] pointer-events-none"></div>
 			</main>
