@@ -127,7 +127,16 @@ class QuizController {
                     ];
                 }
             }
-            if (category) { filter.category = category; }
+            if (category) {
+                if (!mongoose.Types.ObjectId.isValid(category)) {
+                    return res.status(400).send({ error: true, message: "Invalid category ID format" });
+                } 
+                const isValidCategory = await Category.findById(category);
+                if (!isValidCategory) {
+                    return res.status(400).send({ error: true, message: "Invalid category ID" });
+                }
+                filter.category = category;
+            }
             if (access) { 
                 const ACCESS_LEVELS = [ "free", "pro", "premium" ];
                 const levelIndex = ACCESS_LEVELS.indexOf(access);
@@ -138,10 +147,15 @@ class QuizController {
                 const allowedAcccess = ACCESS_LEVELS.slice(0, levelIndex + 1);
                 filter.access = { $in: allowedAcccess }; 
             }
-            if (level) { filter.level = level; }
+            if (level) { 
+                if (["easy", "medium", "hard"].indexOf(level) === -1) {
+                    return res.status(400).send({ error: true, message: "Invalid level" });
+                }
+                filter.level = level; 
+            }
             
-            if (offset) { options.offset = Number(offset); }
-            if (limit) { options.limit = Number(limit); }
+            if (offset) { options.offset = Math.abs(Number(offset)); }
+            if (limit) { options.limit = Math.abs(Number(limit)); }
             
             const quizzes = await Quiz.find(filter, null, options);
             return res.send({ error: false, message: "Success", payload: quizzes });
