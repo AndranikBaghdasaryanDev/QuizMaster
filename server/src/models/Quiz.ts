@@ -20,6 +20,7 @@ const quizSchema = new Schema({
             ref: "Question"
         }
     ],
+    image: String,
     access: {
         type: String,
         enum: [ "free", "pro", "premium" ],
@@ -29,7 +30,19 @@ const quizSchema = new Schema({
         type: Boolean,
         default: true
     },
-    availableFrom: Date,
+    category: {
+        type: Schema.Types.ObjectId,
+        ref: "Category"
+    },
+    level: {
+        type: String,
+        enum: [ "easy", "medium", "hard" ],
+        required: [ true, "Quiz level is required" ]
+    },
+    availableFrom: {
+        type: Date,
+        default: Date.now
+    },
     availableUntil: Date
 });
 

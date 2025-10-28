@@ -1,10 +1,10 @@
-import express from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import { env } from "./config/env.ts";
-import { authRouter, userRouter, quizRouter } from "./routes/index.ts";
+import { authRouter, userRouter, quizRouter, categoryRouter } from "./routes/index.ts";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
-
+import path from "path";
 import { connectDB, disconnectDb } from "./config/db.ts";
 
 const app = express();
@@ -16,13 +16,35 @@ app.use(cors({
     credentials: true
 }));
 
+import { fileURLToPath } from "url";
+import multer from "multer";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
+
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/quiz", quizRouter);
+app.use("/category", categoryRouter);
+
+app.get("/", (req, res) => {
+  res.send({ error: false, message: "API is working" });
+});
 
 // Swagger setup
 const swaggerDocument = YAML.load("./src/docs/swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: true, message: err.message });
+  } else if (err) {
+      return res.status(500).json({ error: true, message: err.message || "Server error" });
+  }
+  next();
+});
 
 const startServer = async () => {
   try {

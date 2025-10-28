@@ -30,6 +30,7 @@ const userScheme = new Schema(
         resetToken: String,
         resetExpires: Date,
         bio: String,
+        isPrivate: Boolean,
         subscription: {
             plan: {
                 type: String,
