@@ -1,5 +1,5 @@
-export interface IResponse<T = unknown> {
-    error: boolean;
+export interface IResponse<T> {
+    error: boolean | null;
     message: string;
     payload?: T;
 }

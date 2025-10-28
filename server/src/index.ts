@@ -45,7 +45,8 @@ const startServer = async () => {
   try {
     await connectDB();
     const URL = `${env.BASE_URL}:${env.PORT}`;
-    app.listen(env.PORT, () => console.log(`Server running at ${URL}`));
+    const SWAGGER = `${env.BASE_URL}:${env.PORT}/api-docs`
+    app.listen(env.PORT, () => console.log(`Server running at ${URL}, ${SWAGGER}`));
   } catch (err) {
     console.error("Failed to connect to DB", err);
     process.exit(1);

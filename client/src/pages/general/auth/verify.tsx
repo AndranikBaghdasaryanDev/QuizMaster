@@ -2,25 +2,38 @@ import { AnimatePresence, motion } from "framer-motion"
 import { CheckCircleIcon, Loader2, XCircleIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Axios } from "../../../api"
+import type { IResponse } from "../../../../../types/response"
 useParams
 export const Verify = ( ) => {
 	const location = useLocation()
 	const navigate = useNavigate()
-	const [verify,setVerify] = useState<any>(null)
+	const [verify,setVerify] = useState<IResponse<{} | undefined>>()
+	const searchParams = new URLSearchParams(location.search)
+	const token = searchParams.get("token")
 	useEffect(() => {
-		{/* Read token with URL */}
-		const searchParams = new URLSearchParams(location.search)
-		const token = searchParams.get("token")
-		console.log(token)
 		if(!token) navigate("/signup")
-		{/* Axios request in backend api in end-point verify */}
-		setTimeout(() => {
-			setVerify(true)
-			console.log("hello")
-		},500)
+		Axios
+		.post<IResponse<{}>>("/user/verify",{token:token})
+		.then(resposne => {
+			console.log(resposne.data)
+			setVerify(resposne.data)
+			setTimeout(() => {
+				navigate("/login")
+			},2000)
+		})
+		.catch(error => {
+			console.log(error.response.data)
+			setVerify(error.response.data)
+		})
 
+		setVerify({error:null, message:"Loading..."})
 
 	},[])
+	const handleResend = () => {
+		console.log("No Covering")
+		{/* NO Covering */}
+	}
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-[#060014] to-[#1a0125] text-white relative overflow-hidden">
 			{/* Animated background gradient blobs */}
@@ -44,7 +57,7 @@ export const Verify = ( ) => {
 					</motion.div>
 				)}
 
-				{verify === true && (
+				{verify?.error === false && (
 					<motion.div
 						key="success"
 						initial={{ opacity: 0, scale: 0.9 }}
@@ -60,13 +73,14 @@ export const Verify = ( ) => {
 						<p className="text-gray-400 max-w-sm text-center">
 							Your email has been successfully verified. You can now log in and start using QuizMaster!
 						</p>
-						
+
 						<Link
 							to="/login"
 							className="z-10000"
 						>
 							<button
 								className=" px-6 py-2 rounded-md bg-linear-to-r from-green-500 to-emerald-600 font-semibold shadow-lg hover:opacity-90 transition cursor-pointer"
+								onClick={() => navigate("/login")}
 							>
 								Go to Login
 							</button>
@@ -75,7 +89,7 @@ export const Verify = ( ) => {
 					</motion.div>
 				)}
 
-				{verify === false && (
+				{verify?.error === true && (
 					<motion.div
 						key="fail"
 						initial={{ opacity: 0, scale: 0.9 }}
@@ -89,13 +103,27 @@ export const Verify = ( ) => {
 							Verification Failed
 						</h1>
 						<p className="text-gray-400 max-w-sm text-center">
-							Sorry, your verification link is invalid or expired. Please request a new verification email.
+							{verify.message}
 						</p>
-						<button
-							className="px-6 py-2 rounded-md bg-linear-to-r from-red-500 to-pink-600 font-semibold shadow-lg hover:opacity-90 transition"
-						>
-							Resend Email
-						</button>
+						<div className="flex gap-10">
+							<Link
+								to="/login"
+								className="z-10000"
+							>
+								<button
+									className=" px-6 py-2 rounded-md bg-linear-to-r from-green-500 to-emerald-600 font-semibold shadow-lg hover:opacity-90 transition cursor-pointer"
+									onClick={() => navigate("/login")}
+								>
+									Go to Login
+								</button>
+							</Link>
+							<button
+								className="z-10000 px-6 py-2 rounded-md bg-linear-to-r from-red-500 to-pink-600 font-semibold shadow-lg hover:opacity-90 transition cursor-pointer"
+								onClick={handleResend}
+							>
+								Resend Email
+							</button>
+						</div>
 					</motion.div>
 				)}
 			</AnimatePresence>
