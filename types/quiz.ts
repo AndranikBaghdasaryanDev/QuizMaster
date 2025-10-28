@@ -28,3 +28,13 @@ export interface IQuiz {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface IAddQuizProps{
+  active: boolean
+  setActive(active: boolean): void
+}
+
+export interface ICraeteQuestion {
+  setNextActive(nextActive: boolean): void
+  setActive(active: boolean): void
+}
