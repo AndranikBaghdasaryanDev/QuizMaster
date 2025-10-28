@@ -178,6 +178,16 @@ class QuizController {
             if (!quiz) {
                 return res.status(404).send({ error: true, message: "Quiz not found" });
             }
+
+            const userId = req.user?._id;
+            const isOwner = quiz.owner_id.toString() === userId?.toString();
+            if (!isOwner) {
+                const now = new Date();
+                if (!quiz.isActive || quiz.availableFrom > now ||
+                    quiz.availableUntil && quiz.availableUntil < now) {
+                    return res.status(400).send({ error: true, message: "Inactive or unavailable quiz" });
+                }
+            }
             
             return res.send({ error: false, message: "Success", payload: quiz });
 
