@@ -3,7 +3,8 @@ import { useOutletContext } from "react-router-dom"
 import type { IOutletContext } from "../../../../../../types/user"
 
 export const Dashboard = () => {
-	// const {account,setAccount} = useOutletContext<IOutletContext>()
+	const {account,setAccount} = useOutletContext<IOutletContext>()
+	
 	return (
 		<div className="min-h-screen bg-[#0a0a0f] text-white px-10 py-8 font-inter">
 			{/* === Top Section === */}
@@ -11,13 +12,10 @@ export const Dashboard = () => {
 				<div>
 					<h1 className="text-3xl font-semibold">Dashboard</h1>
 					<p className="text-gray-400 text-sm mt-1">
-						Welcome back, Sarah! Here’s what’s happening with your quizzes
+						Welcome back, {account?.name}! Here’s what’s happening with your quizzes
 					</p>
 				</div>
 
-				<button className="bg-linear-to-r from-[#8b5cf6] to-[#ec4899] text-white px-4 py-2 rounded-md font-medium shadow-lg hover:opacity-90 transition">
-					+ Create New Quiz
-				</button>
 			</div>
 
 			{/* === Stats Cards === */}
