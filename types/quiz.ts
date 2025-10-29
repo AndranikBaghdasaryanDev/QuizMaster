@@ -30,3 +30,8 @@ export interface IQuiz {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface IQuizUploadFiles {
+  quizImage?: Express.Multer.File[];
+  questionImages?: Express.Multer.File[];
+}
