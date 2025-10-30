@@ -35,8 +35,9 @@ export interface IAddQuizProps{
   active: boolean
   setActive(active: boolean): void
 }
-
 export interface ICraeteQuestion {
+  quiz:IQuiz
+  setQuiz(quiz:IQuiz):void
   setNextActive(nextActive: boolean): void
   setActive(active: boolean): void
 }
