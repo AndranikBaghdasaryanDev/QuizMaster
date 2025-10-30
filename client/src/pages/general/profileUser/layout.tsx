@@ -66,7 +66,7 @@ export const Layout = () => {
 					setMobileSidebar(false);
 					setActive(true);
 				}}
-				className="lg:hidden mt-4 flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold
+				className="lg:hidden mt-4 mb-4 flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold
       bg-linear-to-r from-[#7e3af2] via-[#a855f7] to-[#ec4899]
       hover:from-[#8b5cf6] hover:via-[#a855f7] hover:to-[#f472b6]
       shadow-[0_0_18px_rgba(168,85,247,0.45)] transition-all duration-200 text-white"
