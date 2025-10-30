@@ -2,8 +2,9 @@ import { X, ChevronDown, Trash2, Plus, ChevronLeft } from "lucide-react"
 
 import type {  ICraeteQuestion } from "../../../../../../types/quiz"
 
-export const CreateQuestion = ({setNextActive,setActive} : ICraeteQuestion) => {
+export const CreateQuestion = ({quiz,setQuiz,setNextActive,setActive} : ICraeteQuestion) => {
 
+	
 	return (
 		<div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-9999 flex justify-center items-center">
 			{/* === Modal Container === */}
@@ -96,7 +97,6 @@ export const CreateQuestion = ({setNextActive,setActive} : ICraeteQuestion) => {
 							</div>
 						</div>
 					</div>
-
 					{/* Add Question */}
 					<div className="border border-dashed border-[#2a2a35] rounded-lg py-4 mt-6 flex justify-center">
 						<button

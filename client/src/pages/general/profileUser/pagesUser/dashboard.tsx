@@ -15,7 +15,6 @@ export const Dashboard = () => {
 						Welcome back, {account?.name}! Here’s what’s happening with your quizzes
 					</p>
 				</div>
-
 			</div>
 
 			{/* === Stats Cards === */}

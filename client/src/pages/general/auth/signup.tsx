@@ -1,23 +1,36 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type {ISignUp} from "../../../../../types/user"
 import { useForm } from "react-hook-form";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa"
 import { Axios } from "../../../api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {IResponse} from "../../../../../types/response"
 export const SignUp = () => {
+	const navigate = useNavigate()
 	const {register,handleSubmit,formState:{errors}} = useForm<ISignUp>()
 	const [error,setError] = useState<IResponse<{id:string} | undefined>>()
+
+	useEffect(() => {
+		Axios
+		.get("/auth/user")
+		.then(() => {
+			navigate("/profile")
+		})
+	},[])
+
 	const handleSignUp = (data:ISignUp) => {
 		
 		Axios
 		.post("/auth/signup",data)
 		.then(response => {
+			console.log(response.data)
 			setError(response.data)
 		})
 		.catch(error => {
+			console.log(error.response.data)
+			console.log(error.response)
 			setError(error.response.data)
 		})
 		setError({error:null,message:"Please wait..."})

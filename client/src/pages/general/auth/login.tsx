@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { FaArrowLeft, FaLock, } from "react-icons/fa";
 import { FaEnvelope } from "react-icons/fa";
 import { Axios } from "../../../api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { IResponse } from "../../../../../types/response";
 import { Loader } from "./miniHelpers/loader";
 
@@ -15,6 +15,15 @@ export const Login = () => {
 	const { register, handleSubmit, formState: { errors } } = useForm<ISignUp>()
 	const [error,setError] = useState<IResponse<{token: string}>>()
 	const [loader,setLoader] = useState(false)
+
+	useEffect(() => {
+		Axios
+		.get("/auth/user")
+		.then(() => {
+			navigate("/profile")
+		})
+	},[])
+
 	const handleSignIn = (data: ILogIn) => {
 		console.log(data)
 		Axios
@@ -31,6 +40,7 @@ export const Login = () => {
 			},3000)
 		}) 
 		.catch(error => {
+			console.log(error.response.data)
 			setError(error.response.data)
 		})
 		setError({error:null,message:"Please Wait..."})

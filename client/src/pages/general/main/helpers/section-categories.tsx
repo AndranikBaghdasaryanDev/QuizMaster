@@ -1,6 +1,19 @@
+import { useEffect, useState } from "react"
 import { FaBookOpen } from "react-icons/fa"
-
+import { Axios } from "../../../../api"
+import type {ICategories} from "../../../../../../types/categories"
 export const SectionCategories = () => {
+	const [categories,setCategories] = useState<ICategories[] | undefined>()
+
+	useEffect(() => {
+		Axios
+		.get<ICategories>("/category")
+		.then(response => {
+			console.log(response.data)
+			setCategories(response.data.payload)
+		})
+	},[])
+
 	return <section id="categoris" className="min-h-screen bg-[#0b0b0f] text-white px-6 py-20">
 		{/* Header */}
 		<div className="text-center mb-16">
@@ -23,125 +36,28 @@ export const SectionCategories = () => {
 
 		{/* Categories Grid */}
 		<div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-8 max-w-6xl mx-auto">
-			{/* Card 1 */}
-			<div className="bg-[#1a1a1e] border-t-4 border-blue-500 p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-blue-500/20">
-				<div className="flex items-center mb-4 space-x-3">
-					<div className="bg-blue-600 p-3 rounded-full">
-						<i className="fas fa-atom text-white text-xl"></i>
+			
+			{
+				categories?.map(category => <div key={category._id} className="bg-[#1a1a1e] border-t-4 border-blue-500 p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-blue-500/20">
+					<div className="flex items-center mb-4 space-x-3">
+						<div className={`bg-[${category.color}] p-3 rounded-full`}>
+							<i className={`fas fa-${category.icon} text-white text-xl`}></i>
+						</div>
+						<h3 className="text-lg font-semibold">{category.name}</h3>
 					</div>
-					<h3 className="text-lg font-semibold">Science & Tech</h3>
-				</div>
-				<p className="text-gray-400 text-sm mb-4">
-					Test your knowledge in science & tech with our challenging quizzes
-				</p>
-				<a
-					href=""
-					className="text-blue-400 text-sm font-medium hover:underline flex items-center space-x-1"
-				>
-					<span>Explore Quizzes</span>
-					<i className="fas fa-arrow-right text-xs"></i>
-				</a>
-			</div>
-
-			{/* Card 2 */}
-			<div className="bg-[#1a1a1e] border-t-4 border-green-500 p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-green-500/20">
-				<div className="flex items-center mb-4 space-x-3">
-					<div className="bg-green-600 p-3 rounded-full">
-						<i className="fas fa-square-root-alt text-white text-xl"></i>
-					</div>
-					<h3 className="text-lg font-semibold">Mathematics</h3>
-				</div>
-				<p className="text-gray-400 text-sm mb-4">
-					Test your knowledge in mathematics with our challenging quizzes
-				</p>
-				<a
-					href=""
-					className="text-green-400 text-sm font-medium hover:underline flex items-center space-x-1"
-				>
-					<span>Explore Quizzes</span>
-					<i className="fas fa-arrow-right text-xs"></i>
-				</a>
-			</div>
-
-			{/* Card 3 */}
-			<div className="bg-[#1a1a1e] border-t-4 border-purple-500 p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-purple-500/20">
-				<div className="flex items-center mb-4 space-x-3">
-					<div className="bg-purple-600 p-3 rounded-full">
-						<i className="fas fa-flask text-white text-xl"></i>
-					</div>
-					<h3 className="text-lg font-semibold">Chemistry</h3>
-				</div>
-				<p className="text-gray-400 text-sm mb-4">
-					Test your knowledge in chemistry with our challenging quizzes
-				</p>
-				<a
-					href=""
-					className="text-purple-400 text-sm font-medium hover:underline flex items-center space-x-1"
-				>
-					<span>Explore Quizzes</span>
-					<i className="fas fa-arrow-right text-xs"></i>
-				</a>
-			</div>
-
-			{/* Card 4 */}
-			<div className="bg-[#1a1a1e] border-t-4 border-pink-500 p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-pink-500/20">
-				<div className="flex items-center mb-4 space-x-3">
-					<div className="bg-pink-600 p-3 rounded-full">
-						<i className="fas fa-dna text-white text-xl"></i>
-					</div>
-					<h3 className="text-lg font-semibold">Biology</h3>
-				</div>
-				<p className="text-gray-400 text-sm mb-4">
-					Test your knowledge in biology with our challenging quizzes
-				</p>
-				<a
-					href=""
-					className="text-pink-400 text-sm font-medium hover:underline flex items-center space-x-1"
-				>
-					<span>Explore Quizzes</span>
-					<i className="fas fa-arrow-right text-xs"></i>
-				</a>
-			</div>
-
-			{/* Card 5 */}
-			<div className="bg-[#1a1a1e] border-t-4 border-yellow-500 p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-yellow-500/20">
-				<div className="flex items-center mb-4 space-x-3">
-					<div className="bg-yellow-600 p-3 rounded-full">
-						<i className="fas fa-globe text-white text-xl"></i>
-					</div>
-					<h3 className="text-lg font-semibold">General Knowledge</h3>
-				</div>
-				<p className="text-gray-400 text-sm mb-4">
-					Test your knowledge in general knowledge with our challenging quizzes
-				</p>
-				<a
-					href=""
-					className="text-yellow-400 text-sm font-medium hover:underline flex items-center space-x-1"
-				>
-					<span>Explore Quizzes</span>
-					<i className="fas fa-arrow-right text-xs"></i>
-				</a>
-			</div>
-
-			{/* Card 6 */}
-			<div className="bg-[#1a1a1e] border-t-4 border-red-500 p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300 shadow-lg hover:shadow-red-500/20">
-				<div className="flex items-center mb-4 space-x-3">
-					<div className="bg-red-600 p-3 rounded-full">
-						<i className="fas fa-newspaper text-white text-xl"></i>
-					</div>
-					<h3 className="text-lg font-semibold">Current Affairs</h3>
-				</div>
-				<p className="text-gray-400 text-sm mb-4">
-					Test your knowledge in current affairs with our challenging quizzes
-				</p>
-				<a
-					href=""
-					className="text-red-400 text-sm font-medium hover:underline flex items-center space-x-1"
-				>
-					<span>Explore Quizzes</span>
-					<i className="fas fa-arrow-right text-xs"></i>
-				</a>
-			</div>
+					<p className="text-gray-400 text-sm mb-4">
+						Test your knowledge in science & tech with our challenging quizzes
+					</p>
+					<a
+						href=""
+						className="text-blue-400 text-sm font-medium hover:underline flex items-center space-x-1"
+					>
+						<span>Explore Quizzes</span>
+						<i className="fas fa-arrow-right text-xs"></i>
+					</a>
+				</div> )
+			}
+			
 		</div>
 	</section>
 }

@@ -6,9 +6,6 @@ import { CreateQuestion } from "./createQuestion"
 
 export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 	const [quiz, setQuiz] = useState({
-		error: false,
-		message: "Quiz added successfully",
-		payload: {
 			title: "",
 			description: "",
 			owner_id: "",
@@ -17,19 +14,18 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 			availableFrom: "",
 			availableUntil: "",
 			questions: [
-				{
-					text: "",
-					type: "",
-					points: "",
-					options: [
-						{ text: "", isCorrect: true },
-						{ text: "", isCorrect: false },
-						{ text: "", isCorrect: false },
-					],
-					inputAnswer: "string",
-				},
+				// {
+				// 	text: "",
+				// 	type: "",
+				// 	points: "",
+				// 	options: [
+				// 		{ text: "", isCorrect: true },
+				// 		{ text: "", isCorrect: false },
+				// 		{ text: "", isCorrect: false },
+				// 	],
+				// 	inputAnswer: "string",
+				// },
 			],
-		},
 	})
 
 	const { register, handleSubmit } = useForm()
@@ -38,19 +34,18 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 	const handleAdd = (data: any) => {
 		setQuiz({
 			...quiz,
-			payload: {
-				...quiz.payload,
-				title: data.title,
-				description: data.description,
-			},
+			title: data.title,
+			description: data.description,
 		})
+		
 		setNextActive(true)
 	}
 
+	console.log(quiz)	
 	return (
 		<>
 			{nextActive ? (
-				<CreateQuestion setNextActive={setNextActive} setActive={setActive} />
+				<CreateQuestion quiz={quiz} setQuiz={setQuiz} setNextActive={setNextActive} setActive={setActive} />
 			) : (
 				<div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-9999">
 					<form

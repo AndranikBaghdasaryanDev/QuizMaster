@@ -17,6 +17,6 @@ export const router = createBrowserRouter([
 	{path:"/forgot",element:<ForgotVerify/>},
 	{path:"/forgotPassword",element:<ForgotPassword/>},
 	{path:"/profile",element:<Layout/>, children :[
-		{ path: "", element: <Dashboard /> },
+		{ path: "", element: <Dashboard /> }
 	]}
 ]);
