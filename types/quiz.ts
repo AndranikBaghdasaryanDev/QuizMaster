@@ -31,6 +31,11 @@ export interface IQuiz {
   updatedAt?: Date;
 }
 
+export interface IQuizUploadFiles {
+  quizImage?: Express.Multer.File[];
+  questionImages?: Express.Multer.File[];
+}
+
 export interface IAddQuizProps{
   active: boolean
   setActive(active: boolean): void
