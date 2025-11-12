@@ -88,6 +88,10 @@ class AuthController {
             if (!user.isVerified) {
                 return res.status(403).send({ error: true, message: "Please verify your email before logging in" });
             }
+            // Check if user signed up with Google OAuth (no password)
+            if (!user.password) {
+                return res.status(400).send({ error: true, message: "This account was created with Google. Please sign in with Google." });
+            }
             const isValid = await bcrypt.compare(password, user.password);
             if (!isValid) {
                 return res.status(400).send({ error: true, message: "Invalid credentials" });

@@ -8,8 +8,8 @@ const userScheme = new Schema(
         },
         username: {
             type: String,
-            required: [true, "Username is required"],
-            unique: [true, "Username is busy"]
+            unique: [true, "Username is busy"],
+            sparse: true
         },
         email: {
             type: String,
@@ -17,8 +17,17 @@ const userScheme = new Schema(
             unique: [true, "Email is busy"]
         },
         password: {
+            type: String
+        },
+        googleId: {
             type: String,
-            required: [true, "Password is required"]
+            default: null,
+        },
+        avatar: String,
+        authProvider: {
+            type: String,
+            enum: ["local", "google"],
+            default: "local",
         },
         isVerified: {
             type: Boolean,

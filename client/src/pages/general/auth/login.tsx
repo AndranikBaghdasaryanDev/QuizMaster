@@ -74,7 +74,13 @@ export const Login = () => {
 
 					{/* Social Login */}
 					<div className="flex flex-col sm:flex-row justify-center mb-4 gap-2">
-						<button className="flex-1 border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition">
+						<button 
+							onClick={() => {
+								const apiUrl = Axios.defaults.baseURL || "http://localhost:4002";
+								window.location.href = `${apiUrl}/auth/google`;
+							}}
+							className="flex-1 border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+						>
 							<img
 								src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
 								className="w-5 h-5"

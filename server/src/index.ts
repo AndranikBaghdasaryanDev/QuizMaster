@@ -1,11 +1,12 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import { env } from "./config/env.ts";
-import { authRouter, userRouter, quizRouter, categoryRouter } from "./routes/index.ts";
+// import { authRouter, userRouter, quizRouter, categoryRouter } from "./routes/index.ts";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import path from "path";
 import { connectDB, disconnectDb } from "./config/db.ts";
+import passport from "./config/passport.ts";
 
 const app = express();
 
@@ -16,6 +17,9 @@ app.use(cors({
     credentials: true
 }));
 
+// Initialize Passport
+app.use(passport.initialize());
+
 import { fileURLToPath } from "url";
 import multer from "multer";
 const __filename = fileURLToPath(import.meta.url);
@@ -23,10 +27,10 @@ const __dirname = path.dirname(__filename);
 
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
-app.use("/auth", authRouter);
-app.use("/user", userRouter);
-app.use("/quiz", quizRouter);
-app.use("/category", categoryRouter);
+// app.use("/auth", authRouter);
+// app.use("/user", userRouter);
+// app.use("/quiz", quizRouter);
+// app.use("/category", categoryRouter);
 
 app.get("/", (req, res) => {
   res.send({ error: false, message: "API is working" });
@@ -49,6 +53,14 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const startServer = async () => {
   try {
     await connectDB();
+
+    const { authRouter, userRouter, quizRouter, categoryRouter } = await import("./routes/index.ts");
+
+    app.use("/auth", authRouter);
+    app.use("/user", userRouter);
+    app.use("/quiz", quizRouter);
+    app.use("/category", categoryRouter);
+
     const URL = `${env.BASE_URL}:${env.PORT}`;
     const SWAGGER = `${env.BASE_URL}:${env.PORT}/api-docs`
     app.listen(env.PORT, () => console.log(`Server running at ${URL}, ${SWAGGER}`));
@@ -61,4 +73,9 @@ const startServer = async () => {
 startServer();
 
 process.on('SIGTERM', () => disconnectDb());
-process.on('SIGINT', () => disconnectDb());
+// Optional — helpful for catching server shutdowns
+process.on("SIGINT", async () => {
+  await disconnectDb();
+  process.exit(0);
+});
+

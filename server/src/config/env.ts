@@ -23,6 +23,8 @@ export const env: Env = {
   EMAIL_USER: process.env.EMAIL_USER ?? "",
   EMAIL_FROM: process.env.EMAIL_FROM ?? "",
   EMAIL_PASS: process.env.EMAIL_PASS ?? "",
-  TOKEN_EXPIRE_TIME: process.env.TOKEN_EXPIRE_TIME ?? "300000"
-
+  TOKEN_EXPIRE_TIME: process.env.TOKEN_EXPIRE_TIME ?? "300000",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ?? "",
+  GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL ?? `${process.env.BASE_URL ?? "http://localhost"}:${process.env.PORT ?? "4002"}/auth/google/callback`
 };
