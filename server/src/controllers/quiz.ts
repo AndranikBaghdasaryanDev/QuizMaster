@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { IQuestion, IQuizUploadFiles } from "@/quiz.ts";
+import type { IQuestion, IQuizUploadFiles, IScoreResult, IUserAnswer } from "@/quiz.ts";
 import { Quiz, Question, Category, User } from "../models/index.ts";
 import validator from "../lib/validator.ts";
 import mongoose, { type Types } from "mongoose";
@@ -194,6 +194,137 @@ class QuizController {
         } catch(err) {
             return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
+    }
+
+    async submitQuiz(req: Request, res: Response) {
+        try {
+            if (!req.body) {
+                return res.status(400).send({ error: true, message: "Payload is required" });
+            }
+
+            const { quizId, answers } = req.body;
+            if (!quizId || !mongoose.Types.ObjectId.isValid(quizId)) {
+                return res.status(400).send({ error: true, message: "Invalid/missing Quiz ID" });
+            }
+            if (!answers || !Array.isArray(answers)) {
+                return res.status(400).send({ error: true, message: "Invalid/missing Answers" });
+            }
+
+            const quiz = await Quiz.findById(quizId).populate("questions");
+            if (!quiz) {
+                return res.status(404).send({ error: true, message: "Quiz not found" });
+            }
+
+            if (!quiz.questions || quiz.questions.length === 0) {
+                return res.status(404).send({ error: true, message: "Questions not found" });
+            }
+            
+            const userAnswers: IUserAnswer[] = answers.map((answer: any) => ({
+                questionId: answer.questionId?.toString() || "",
+                answer: answer.answer
+            }));
+
+            // Convert mongoose documents to IQuestion format
+            const questions: IQuestion[] = (quiz.questions as any[]).map((q: any) => ({
+                _id: q._id.toString(),
+                text: q.text,
+                type: q.type,
+                image: q.image || null,
+                options: q.options || null,
+                inputAnswer: q.inputAnswer || null,
+                points: q.points || 1
+            }));
+
+            const scoreResult = await this.#calculateScore(questions, userAnswers);
+            return res.send({ 
+                error: false, 
+                message: "Success", 
+                payload: {
+                    totalScore: scoreResult.totalScore,
+                    maxScore: scoreResult.maxScore,
+                    percentage: scoreResult.percentage,
+                    correctAnswers: scoreResult.correctAnswers,
+                    totalQuestions: scoreResult.totalQuestions
+                }
+            });
+        } catch(err) {
+            console.error(err);
+            return res.status(500).send({ error: true, message: "Server error", payload: err });
+        }
+    }
+
+    async #calculateScore(questions: IQuestion[], userAnswers: IUserAnswer[]): Promise<IScoreResult> {
+        let totalScore = 0;
+        let maxScore = 0;
+        let correctAnswers = 0;
+
+        for (const question of questions) {
+            maxScore += question.points;
+            const userAnswer = userAnswers.find(a => a.questionId === question._id);
+
+            if (!userAnswer) {
+                continue; // No answer provided, skip
+            }
+
+            let isCorrect = false;
+
+            switch (question.type) {
+                case "single": {
+                    // For single choice, user answer should be a string matching one of the correct option texts
+                    if (typeof userAnswer.answer === "string" && question.options) {
+                        const correctOption = question.options.find(opt => opt.isCorrect);
+                        if (correctOption && userAnswer.answer.trim().toLowerCase() === correctOption.text.trim().toLowerCase()) {
+                            isCorrect = true;
+                        }
+                    }
+                    break;
+                }
+                case "multiple": {
+                    // For multiple choice, user answer should be an array of strings
+                    // All correct options must be selected, and no incorrect options
+                    if (Array.isArray(userAnswer.answer) && question.options) {
+                        const correctOptions = question.options.filter(opt => opt.isCorrect);
+                        const userAnswersArray = (userAnswer.answer as string[]).map(a => a.trim().toLowerCase());
+                        const correctAnswersArray = correctOptions.map(opt => opt.text.trim().toLowerCase());
+                        
+                        // Check if all correct answers are selected and no incorrect ones
+                        const allCorrectSelected = correctAnswersArray.every(correct => 
+                            userAnswersArray.includes(correct)
+                        );
+                        const hasIncorrectSelected = userAnswersArray.some(userAns => 
+                            !correctAnswersArray.includes(userAns)
+                        );
+                        
+                        isCorrect = allCorrectSelected && !hasIncorrectSelected;
+                    }
+                    break;
+                }
+                case "input": {
+                    // For input type, compare user answer with inputAnswer (case-insensitive, trimmed)
+                    if (typeof userAnswer.answer === "string" && question.inputAnswer) {
+                        const userInput = userAnswer.answer.trim().toLowerCase();
+                        const correctInput = question.inputAnswer.trim().toLowerCase();
+                        isCorrect = userInput === correctInput;
+                    }
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                totalScore += question.points;
+                correctAnswers++;
+            }
+        }
+
+        const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+
+        return {
+            totalScore,
+            maxScore,
+            percentage,
+            correctAnswers,
+            totalQuestions: questions.length
+        };
     }
 }
 
