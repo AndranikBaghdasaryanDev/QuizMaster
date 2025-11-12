@@ -11,6 +11,9 @@ export interface Env {
   EMAIL_FROM: string;
   EMAIL_PASS: string;
   TOKEN_EXPIRE_TIME: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  GOOGLE_CALLBACK_URL: string;
   [key: string]: string; // for any other vars
 }
 
