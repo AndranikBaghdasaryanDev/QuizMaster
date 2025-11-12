@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:4002
     description: Local development server
 
 paths:
@@ -89,8 +89,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseToken'
-        '401':
-          description: Invalid credentials
+        '400':
+          description: Invalid credentials, invalid payload, or account created with Google OAuth
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '403':
+          description: Email not verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
@@ -109,9 +121,66 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IUserSafe'
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Success"
+                  payload:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/IUserSafe'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+
+  /auth/google:
+    get:
+      summary: Initiate Google OAuth authentication
+      description: Redirects user to Google OAuth consent screen
+      tags:
+        - Auth
+      responses:
+        '302':
+          description: Redirect to Google OAuth
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+
+  /auth/google/callback:
+    get:
+      summary: Google OAuth callback endpoint
+      description: Handles Google OAuth callback and redirects to frontend with JWT token
+      tags:
+        - Auth
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Authorization code from Google
+        - name: error
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Error message if OAuth failed
+      responses:
+        '302':
+          description: Redirect to frontend with token or error
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
@@ -258,6 +327,12 @@ paths:
   /quiz:
     post:
       summary: Add a new quiz
+      description: >
+        Creates a new quiz with optional image uploads.  
+        The request must be sent as `multipart/form-data`.  
+        - `quizData`: JSON string containing quiz information  
+        - `quizImage`: (optional) Image file for the quiz  
+        - `questionImages`: (optional) Array of image files for questions (up to 20)
       tags:
         - Quiz
       security:
@@ -265,16 +340,44 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/IResponseQuiz'
+              type: object
+              required:
+                - quizData
+              properties:
+                quizData:
+                  type: string
+                  description: JSON string containing quiz data
+                  example: '{"title":"Math Basics","description":"A quiz on basic math","access":"free","level":"medium","category":"64f633442aodd4e924847ae","questions":[...]}'
+                quizImage:
+                  type: string
+                  format: binary
+                  description: Quiz cover image (optional)
+                questionImages:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Question images (optional, up to 20)
       responses:
         '201':
           description: Quiz created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IResponseQuiz'
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Quiz added successfully"
+                  payload:
+                    type: string
+                    description: Quiz ID
+                    example: "650c1f1a2e5b6f001234abcd"
         '400':
           description: Invalid payload or validation error
           content:
@@ -283,6 +386,12 @@ paths:
                 $ref: '#/components/schemas/IResponseError'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '404':
+          description: Invalid category ID
           content:
             application/json:
               schema:
@@ -296,56 +405,44 @@ paths:
     get:
       summary: Get all quizzes with optional filters
       description: >
-        Returns a list of quizzes.  
+        Returns a list of quizzes. Filters are sent in the request body (not query parameters).  
         If no filters are provided, only quizzes with `isActive: true` are returned.  
         If `owner_id` is specified and it is **not the logged-in user**, only quizzes that are **active** and within the valid availability period (`availableFrom` / `availableUntil`) are shown.
       tags:
         - Quiz
       security:
         - bearerAuth: []
-      parameters:
-        - name: owner_id
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter by owner (user ID)
-        - name: access
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [free, pro, premium]
-          description: >
-            Filter by access level.  
-            - If `free`, only free quizzes are shown.  
-            - If `pro`, includes `free` and `pro` quizzes.  
-            - If `premium`, includes all access levels.
-        - name: level
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [easy, medium, hard]
-          description: Filter quizzes by difficulty level.
-        - name: category
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter by category ID.
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-          description: Limit number of results.
-        - name: offset
-          in: query
-          required: false
-          schema:
-            type: integer
-          description: Number of results to skip (for pagination).
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                owner_id:
+                  type: string
+                  description: Filter by owner (user ID)
+                access:
+                  type: string
+                  enum: [free, pro, premium]
+                  description: >
+                    Filter by access level.  
+                    - If `free`, only free quizzes are shown.  
+                    - If `pro`, includes `free` and `pro` quizzes.  
+                    - If `premium`, includes all access levels.
+                level:
+                  type: string
+                  enum: [easy, medium, hard]
+                  description: Filter quizzes by difficulty level.
+                category:
+                  type: string
+                  description: Filter by category ID.
+                limit:
+                  type: integer
+                  description: Limit number of results.
+                offset:
+                  type: integer
+                  description: Number of results to skip (for pagination).
       responses:
         '200':
           description: Quizzes fetched successfully
@@ -376,6 +473,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseError'
+        '404':
+          description: Owner not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
         '500':
           description: Server error
           content:
@@ -388,7 +491,8 @@ paths:
       summary: Get a single quiz by ID
       description: >
         Returns a single quiz with its category populated.  
-        Requires a valid quiz ID in the path parameter.
+        Requires a valid quiz ID in the path parameter.  
+        If the user is not the owner, the quiz must be active and within the availability period.
       tags:
         - Quiz
       security:
@@ -417,7 +521,7 @@ paths:
                   payload:
                     $ref: '#/components/schemas/IQuiz'
         '400':
-          description: Invalid or missing quiz ID
+          description: Invalid or missing quiz ID, or quiz is inactive/unavailable
           content:
             application/json:
               schema:
@@ -434,6 +538,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+
+  # --- Category Endpoints ---
+  /category:
+    get:
+      summary: Get all categories
+      description: Returns a list of all active and inactive categories
+      tags:
+        - Category
+      responses:
+        '200':
+          description: Categories fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Success"
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ICategory'
         '500':
           description: Server error
           content:
@@ -554,14 +690,21 @@ components:
         points:
           type: integer
           default: 1
+        image:
+          type: string
+          nullable: true
+          description: URL path to question image
+          example: "/uploads/question/1761565857947-8b4e867121b600dad361d2015597dd2a.png"
         options:
           type: array
           items:
             $ref: '#/components/schemas/IAnswer'
           nullable: true
+          description: Required for 'single' and 'multiple' question types
         inputAnswer:
           type: string
           nullable: true
+          description: Required for 'input' question type
       required:
         - text
         - type
@@ -572,40 +715,55 @@ components:
         title:
           type: string
           example: "Math Basics"
+          minLength: 3
+          maxLength: 500
         description:
           type: string
           example: "A quiz on basic math operations"
+          minLength: 10
+          maxLength: 1000
         access:
           type: string
           enum:
             - free
             - pro
             - premium
+          default: "free"
           example: "free"
         isActive:
           type: boolean
           default: true
         category:
           type: string
+          description: Category ID (MongoDB ObjectId)
           example: "64f633442aodd4e924847ae"
         level:
           type: string
+          enum:
+            - easy
+            - medium
+            - hard
           example: "medium"
         availableFrom:
           type: string
           format: date-time
           nullable: true
+          description: Quiz availability start date
         availableUntil:
           type: string
           format: date-time
           nullable: true
+          description: Quiz availability end date
         questions:
           type: array
           items:
             $ref: '#/components/schemas/IQuestion'
+          minItems: 1
       required:
         - title
         - description
+        - category
+        - level
         - questions
 
     IQuiz:
@@ -623,24 +781,102 @@ components:
         owner_id:
           type: string
           example: "64f633442aadd4e271147ae"
+        image:
+          type: string
+          nullable: true
+          description: URL path to quiz cover image
+          example: "/uploads/quiz/1761560496693-b57441e34ec0733dc49206decb9fb823.jpg"
         access:
           type: string
+          enum:
+            - free
+            - pro
+            - premium
           example: "free"
         isActive:
           type: boolean
           example: true
+        category:
+          type: object
+          description: Populated category object
+          properties:
+            _id:
+              type: string
+            name:
+              type: string
+            slug:
+              type: string
+            description:
+              type: string
+            icon:
+              type: string
+            color:
+              type: string
+            order:
+              type: number
+            isActive:
+              type: boolean
+        level:
+          type: string
+          enum:
+            - easy
+            - medium
+            - hard
+          example: "medium"
         availableFrom:
           type: string
           format: date-time
           nullable: true
+          description: Quiz availability start date
         availableUntil:
           type: string
           format: date-time
           nullable: true
+          description: Quiz availability end date
         questions:
           type: array
           items:
             $ref: '#/components/schemas/IQuestion'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ICategory:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "64f633442aodd4e924847ae"
+        name:
+          type: string
+          example: "Mathematics"
+        slug:
+          type: string
+          example: "mathematics"
+        description:
+          type: string
+          example: "Quizzes related to mathematics"
+        icon:
+          type: string
+          example: "calculator"
+        color:
+          type: string
+          example: "#3B82F6"
+        order:
+          type: number
+          example: 0
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     IResponseQuiz:
       type: object
