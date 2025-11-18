@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { IQuestion, IQuizUploadFiles, IScoreResult, IUserAnswer } from "@/quiz.ts";
+import type { IQuestion, IQuiz, IQuizUploadFiles, IScoreResult, IUserAnswer } from "@/quiz.ts";
 import { Quiz, Question, Category, User } from "../models/index.ts";
 import validator from "../lib/validator.ts";
 import mongoose, { type Types } from "mongoose";
@@ -158,6 +158,7 @@ class QuizController {
         const questionsCreated = await Question.insertMany(questions);
         return { error: false, message: "ok", payload: questionsCreated.map(q => q._id) };
     }
+
     async getQuizzes(req: Request, res: Response) {
         try {
 
@@ -232,16 +233,35 @@ class QuizController {
             if (!id || !mongoose.Types.ObjectId.isValid(id)) {
                 return res.status(400).send({ error: true, message: "Invalid/missing Quiz ID" });
             }
+
+            const ACCESS_LEVELS = ["free", "pro", "premium"];
+            const userPlan = req.user?.subscription?.plan || "free";
+            const subscriptionExpires = req.user?.subscription?.expires;
             
-            const quiz = await Quiz.findById(id)
+            // Check if subscription has expired
+            const isSubscriptionExpired = subscriptionExpires && new Date(subscriptionExpires) < new Date();
+            const effectivePlan = isSubscriptionExpired ? "free" : userPlan;
+            const userPlanIndex = ACCESS_LEVELS.indexOf(effectivePlan);
+            
+            // Get allowed access levels for user's plan
+            const allowedAccessLevels = ACCESS_LEVELS.slice(0, userPlanIndex + 1);
+            
+            // Fetch quiz with access check - only fetch if user has access
+            const quiz = await Quiz
+                .findOne({
+                    _id: id, 
+                    access: { $in: allowedAccessLevels }
+                })
                 .populate("category")
                 .populate("questions");
+
             if (!quiz) {
-                return res.status(404).send({ error: true, message: "Quiz not found" });
+                return res.status(404).send({ error: true, message: `Quiz not found or your ${effectivePlan} plan does not allow access to this quiz. Please upgrade your subscription.` });
             }
 
             const userId = req.user?._id;
             const isOwner = quiz.owner_id.toString() === userId?.toString();
+            
             if (!isOwner) {
                 const now = new Date();
                 if (!quiz.isActive || quiz.availableFrom > now ||
@@ -271,9 +291,21 @@ class QuizController {
                 return res.status(400).send({ error: true, message: "Invalid/missing Answers" });
             }
 
-            const quiz = await Quiz.findById(quizId).populate("questions");
+            const ACCESS_LEVELS = ["free", "pro", "premium"];
+            const userPlan = req.user?.subscription?.plan || "free";
+            const subscriptionExpires = req.user?.subscription?.expires;
+            const isSubscriptionExpired = subscriptionExpires && new Date(subscriptionExpires) < new Date();
+            const effectivePlan = isSubscriptionExpired ? "free" : userPlan;
+            const userPlanIndex = ACCESS_LEVELS.indexOf(effectivePlan);
+            const allowedAccessLevels = ACCESS_LEVELS.slice(0, userPlanIndex + 1);
+            const quiz = await Quiz
+                .findOne({
+                    _id: quizId, 
+                    access: { $in: allowedAccessLevels }
+                })
+                .populate("questions");
             if (!quiz) {
-                return res.status(404).send({ error: true, message: "Quiz not found" });
+                return res.status(404).send({ error: true, message: `Quiz not found or your ${effectivePlan} plan does not allow access to this quiz. Please upgrade your subscription.` });
             }
 
             if (!quiz.questions || quiz.questions.length === 0) {
@@ -293,7 +325,7 @@ class QuizController {
                 image: q.image || null,
                 options: q.options || null,
                 inputAnswer: q.inputAnswer || null,
-                points: q.points || 1
+                points: Math.abs(q.points) || 1
             }));
 
             const scoreResult = await this.#calculateScore(questions, userAnswers);

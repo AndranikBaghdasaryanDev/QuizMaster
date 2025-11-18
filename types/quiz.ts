@@ -1,3 +1,4 @@
+import type { Types } from "mongoose";
 export interface IAnswer {
   _id: string;
   text: string;
@@ -25,6 +26,12 @@ export interface IQuiz {
   image: string | null;
   owner_id: string;
   questions: IQuestion[];
+  isActive: boolean;
+  availableFrom: Date;
+  availableUntil: Date;
+  access: "free" | "pro" | "premium";
+  level: "easy" | "medium" | "hard";
+  category: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
