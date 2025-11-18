@@ -17,5 +17,6 @@ quizRouter.post(
 );
 quizRouter.get("/", quizController.getQuizzes);
 quizRouter.get("/:id", quizController.getQuizById);
+quizRouter.post("/submit", quizController.submitQuiz);
 
 export default quizRouter;

@@ -1,7 +1,5 @@
-import type { ObjectId } from "mongodb";
-
 export interface IAnswer {
-  _id: string | ObjectId;
+  _id: string;
   text: string;
   isCorrect: boolean;
   createdAt?: Date;
@@ -25,7 +23,7 @@ export interface IQuiz {
   title: string;
   description: string;
   image: string | null;
-  owner_id: string | ObjectId;
+  owner_id: string;
   questions: IQuestion[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -45,4 +43,17 @@ export interface ICraeteQuestion {
   setQuiz(quiz:IQuiz):void
   setNextActive(nextActive: boolean): void
   setActive(active: boolean): void
+}
+
+export interface IUserAnswer {
+  questionId: string;
+  answer: string | string[]; // For single: string, for multiple: string[], for input: string
+}
+
+export interface IScoreResult {
+  totalScore: number;
+  maxScore: number;
+  percentage: number;
+  correctAnswers: number;
+  totalQuestions: number;
 }
