@@ -46,35 +46,94 @@ class QuizController {
                 return res.status(400).send({ error: true, message: "Invalid level" });
             }
 
+            // 3️⃣ Validate subscription plan and creation limits
+            const user = req.user;
+            if (!user) {
+                return res.status(401).send({ error: true, message: "User not authenticated" });
+            }
+
+            const userPlan = user.subscription?.plan || "free";
+            const subscriptionExpires = user.subscription?.expires;
+            
+            // Check if subscription has expired
+            const isSubscriptionExpired = subscriptionExpires && new Date(subscriptionExpires) < new Date();
+            const effectivePlan = isSubscriptionExpired ? "free" : userPlan;
+
+            // Free users cannot create any quizzes
+            if (effectivePlan === "free") {
+                return res.status(403).send({ 
+                    error: true, 
+                    message: "Free plan users cannot create quizzes. Please upgrade to Pro or Premium to create quizzes." 
+                });
+            }
+
+            // Validate access level (free/pro/premium quiz types)
+            const ACCESS_LEVELS = ["free", "pro", "premium"];
+            const userPlanIndex = ACCESS_LEVELS.indexOf(effectivePlan);
+            const requestedAccessIndex = ACCESS_LEVELS.indexOf(access);
+
+            // User can only create quizzes with access level <= their subscription plan
+            if (requestedAccessIndex > userPlanIndex) {
+                return res.status(403).send({ 
+                    error: true, 
+                    message: `Your ${effectivePlan} plan does not allow creating ${access} quizzes. Please upgrade your subscription.` 
+                });
+            }
+
             const files = req.files as unknown as IQuizUploadFiles;
-            // 3️⃣ Attach quiz image
-            const quizImageUrl = files.quizImage?.[0]
+            
+            // 4️⃣ Validate and attach quiz image
+            const quizImageUrl = files?.quizImage?.[0]
                 ? `/uploads/quiz/${files.quizImage[0].filename}`
                 : null;
     
-            // 4️⃣ Attach question images
+            // 5️⃣ Validate and attach question images (only for premium users)
             const questionImagesUrl = files?.questionImages
                 ? (files.questionImages as Express.Multer.File[]).map(f => `/uploads/question/${f.filename}`)
                 : [];
+
+            // Pro users cannot add question images
+            if (effectivePlan === "pro" && questionImagesUrl.length > 0) {
+                return res.status(403).send({ 
+                    error: true, 
+                    message: "Pro plan users cannot add images to questions. Please upgrade to Premium to use question images." 
+                });
+            }
+
+            // Pro users: Check total quiz images limit (up to 50)
+            if (effectivePlan === "pro" && quizImageUrl) {
+                const userQuizzesWithImages = await Quiz.countDocuments({ 
+                    owner_id: user._id,
+                    image: { $exists: true, $ne: null }
+                });
+                
+                if (userQuizzesWithImages >= 50) {
+                    return res.status(403).send({ 
+                        error: true, 
+                        message: "Pro plan allows up to 50 quizzes with images. Please upgrade to Premium for unlimited quiz images." 
+                    });
+                }
+            }
     
             const questionsWithImages = questions.map((q: IQuestion, idx: number) => ({
                 ...q,
-                image: questionImagesUrl[idx] ?? null
+                image: effectivePlan === "premium" ? (questionImagesUrl[idx] ?? null) : null
             }));
     
-            // 5️⃣ Validate and insert questions
+            // 6️⃣ Validate and insert questions
             const addQuestionsRes = await this.#addQuestions(questionsWithImages);
             if (addQuestionsRes.error) {
                 return res.status(400).send(addQuestionsRes);
             }
     
-            // 6️⃣ Create quiz
+            // 7️⃣ Create quiz
             const quiz = await Quiz.create({
                 title,
                 description,
                 owner_id: req.user?._id,
                 access,
                 questions: addQuestionsRes.payload,
+                level,
                 isActive,
                 category,
                 availableFrom: availableFrom ? new Date(availableFrom) : null,
@@ -174,7 +233,9 @@ class QuizController {
                 return res.status(400).send({ error: true, message: "Invalid/missing Quiz ID" });
             }
             
-            const quiz = await Quiz.findById(id).populate("category");
+            const quiz = await Quiz.findById(id)
+                .populate("category")
+                .populate("questions");
             if (!quiz) {
                 return res.status(404).send({ error: true, message: "Quiz not found" });
             }
