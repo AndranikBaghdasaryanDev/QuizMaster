@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { IQuestion, IQuizUploadFiles } from "@/quiz.ts";
+import type { IQuestion, IQuizUploadFiles, IScoreResult, IUserAnswer } from "@/quiz.ts";
 import { Quiz, Question, Category, User } from "../models/index.ts";
 import validator from "../lib/validator.ts";
 import mongoose, { type Types } from "mongoose";
@@ -13,7 +13,7 @@ class QuizController {
     
         try {
             // 1️⃣ Parse quizData JSON
-            const quizData = req.body.quizData ? JSON.parse(req.body.quizData) : {};
+            const quizData = req.body.quizData ? req.body.quizData : {};
             const { 
                 title, 
                 description, 
@@ -25,9 +25,10 @@ class QuizController {
                 availableFrom, 
                 availableUntil 
             } = quizData;
-    
+            console.log(quizData)
             // 2️⃣ Validate fields
             if (!title || !validator.isValidLen(title.trim(), 3, 500)) {
+                console.log("test",title)
                 return res.status(400).send({ error: true, message: "Title must be 3-500 characters long." });
             }
             if (!description || !validator.isValidLen(description.trim(), 10, 1000)) {
@@ -47,21 +48,27 @@ class QuizController {
             }
 
             const files = req.files as unknown as IQuizUploadFiles;
-            // 3️⃣ Attach quiz image
-            const quizImageUrl = files.quizImage?.[0]
-                ? `/uploads/quiz/${files.quizImage[0].filename}`
-                : null;
-    
-            // 4️⃣ Attach question images
+
+            // console.log(files?.quizImage, "files");
+            // // 3️⃣ Attach quiz image
+            const quizImageUrl = files?.quizImage?.[0] != undefined
+            ? `/uploads/quiz/${files.quizImage[0].filename}`
+            : null;
+            // // 4️⃣ Attach question images
             const questionImagesUrl = files?.questionImages
-                ? (files.questionImages as Express.Multer.File[]).map(f => `/uploads/question/${f.filename}`)
-                : [];
+            ? (files.questionImages as Express.Multer.File[]).map(f => `/uploads/question/${f.filename}`)
+            : [];
+            
+            
+            const questionsWithImages = questions.map((q: IQuestion, idx: number) => {
+                const { _id, ...rest } = q;
+                return {
+                    ...rest,
+                    image: questionImagesUrl[idx] ?? null
+                }
+            });
     
-            const questionsWithImages = questions.map((q: IQuestion, idx: number) => ({
-                ...q,
-                image: questionImagesUrl[idx] ?? null
-            }));
-    
+           console.log(questionsWithImages)
             // 5️⃣ Validate and insert questions
             const addQuestionsRes = await this.#addQuestions(questionsWithImages);
             if (addQuestionsRes.error) {
@@ -76,12 +83,13 @@ class QuizController {
                 access,
                 questions: addQuestionsRes.payload,
                 isActive,
+                level,
                 category,
                 availableFrom: availableFrom ? new Date(availableFrom) : null,
                 availableUntil: availableUntil ? new Date(availableUntil) : null,
                 image: quizImageUrl
             });
-    
+            console.log(quiz)
             return res.status(201).send({ error: false, message: "Quiz added successfully", payload: quiz._id });
         } catch(err) {
             console.error(err);
@@ -101,7 +109,7 @@ class QuizController {
     }
     async getQuizzes(req: Request, res: Response) {
         try {
-
+            console.log("started")
             const { owner_id, access, level, category, limit, offset } = req.body ?? {};
             
             const filter:any = {};
@@ -110,7 +118,7 @@ class QuizController {
             if (owner_id) {
                 filter.owner_id = owner_id;
                 if (!(owner_id == req.user?._id)) {
-                    
+                    console.log("owner id ")
                     const ownerDoc = await User.findById(owner_id)
                     .select("-password -verifyToken -verifyExpires");
                     
@@ -128,6 +136,7 @@ class QuizController {
                 }
             }
             if (category) {
+                console.log("on category 1")
                 if (!mongoose.Types.ObjectId.isValid(category)) {
                     return res.status(400).send({ error: true, message: "Invalid category ID format" });
                 } 
@@ -138,6 +147,8 @@ class QuizController {
                 filter.category = category;
             }
             if (access) { 
+                console.log("on acces 1")
+
                 const ACCESS_LEVELS = [ "free", "pro", "premium" ];
                 const levelIndex = ACCESS_LEVELS.indexOf(access);
 
@@ -148,6 +159,8 @@ class QuizController {
                 filter.access = { $in: allowedAcccess }; 
             }
             if (level) { 
+                console.log("on level 1")
+
                 if (["easy", "medium", "hard"].indexOf(level) === -1) {
                     return res.status(400).send({ error: true, message: "Invalid level" });
                 }
@@ -194,6 +207,137 @@ class QuizController {
         } catch(err) {
             return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
+    }
+
+    async submitQuiz(req: Request, res: Response) {
+        try {
+            if (!req.body) {
+                return res.status(400).send({ error: true, message: "Payload is required" });
+            }
+
+            const { quizId, answers } = req.body;
+            if (!quizId || !mongoose.Types.ObjectId.isValid(quizId)) {
+                return res.status(400).send({ error: true, message: "Invalid/missing Quiz ID" });
+            }
+            if (!answers || !Array.isArray(answers)) {
+                return res.status(400).send({ error: true, message: "Invalid/missing Answers" });
+            }
+
+            const quiz = await Quiz.findById(quizId).populate("questions");
+            if (!quiz) {
+                return res.status(404).send({ error: true, message: "Quiz not found" });
+            }
+
+            if (!quiz.questions || quiz.questions.length === 0) {
+                return res.status(404).send({ error: true, message: "Questions not found" });
+            }
+            
+            const userAnswers: IUserAnswer[] = answers.map((answer: any) => ({
+                questionId: answer.questionId?.toString() || "",
+                answer: answer.answer
+            }));
+
+            // Convert mongoose documents to IQuestion format
+            const questions: IQuestion[] = (quiz.questions as any[]).map((q: any) => ({
+                _id: q._id.toString(),
+                text: q.text,
+                type: q.type,
+                image: q.image || null,
+                options: q.options || null,
+                inputAnswer: q.inputAnswer || null,
+                points: q.points || 1
+            }));
+
+            const scoreResult = await this.#calculateScore(questions, userAnswers);
+            return res.send({ 
+                error: false, 
+                message: "Success", 
+                payload: {
+                    totalScore: scoreResult.totalScore,
+                    maxScore: scoreResult.maxScore,
+                    percentage: scoreResult.percentage,
+                    correctAnswers: scoreResult.correctAnswers,
+                    totalQuestions: scoreResult.totalQuestions
+                }
+            });
+        } catch(err) {
+            console.error(err);
+            return res.status(500).send({ error: true, message: "Server error", payload: err });
+        }
+    }
+
+    async #calculateScore(questions: IQuestion[], userAnswers: IUserAnswer[]): Promise<IScoreResult> {
+        let totalScore = 0;
+        let maxScore = 0;
+        let correctAnswers = 0;
+
+        for (const question of questions) {
+            maxScore += question.points;
+            const userAnswer = userAnswers.find(a => a.questionId === question._id);
+
+            if (!userAnswer) {
+                continue; // No answer provided, skip
+            }
+
+            let isCorrect = false;
+
+            switch (question.type) {
+                case "single": {
+                    // For single choice, user answer should be a string matching one of the correct option texts
+                    if (typeof userAnswer.answer === "string" && question.options) {
+                        const correctOption = question.options.find(opt => opt.isCorrect);
+                        if (correctOption && userAnswer.answer.trim().toLowerCase() === correctOption.text.trim().toLowerCase()) {
+                            isCorrect = true;
+                        }
+                    }
+                    break;
+                }
+                case "multiple": {
+                    // For multiple choice, user answer should be an array of strings
+                    // All correct options must be selected, and no incorrect options
+                    if (Array.isArray(userAnswer.answer) && question.options) {
+                        const correctOptions = question.options.filter(opt => opt.isCorrect);
+                        const userAnswersArray = (userAnswer.answer as string[]).map(a => a.trim().toLowerCase());
+                        const correctAnswersArray = correctOptions.map(opt => opt.text.trim().toLowerCase());
+                        
+                        // Check if all correct answers are selected and no incorrect ones
+                        const allCorrectSelected = correctAnswersArray.every(correct => 
+                            userAnswersArray.includes(correct)
+                        );
+                        const hasIncorrectSelected = userAnswersArray.some(userAns => 
+                            !correctAnswersArray.includes(userAns)
+                        );
+                        
+                        isCorrect = allCorrectSelected && !hasIncorrectSelected;
+                    }
+                    break;
+                }
+                case "input": {
+                    // For input type, compare user answer with inputAnswer (case-insensitive, trimmed)
+                    if (typeof userAnswer.answer === "string" && question.inputAnswer) {
+                        const userInput = userAnswer.answer.trim().toLowerCase();
+                        const correctInput = question.inputAnswer.trim().toLowerCase();
+                        isCorrect = userInput === correctInput;
+                    }
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                totalScore += question.points;
+                correctAnswers++;
+            }
+        }
+
+        const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+
+        return {
+            totalScore,
+            maxScore,
+            percentage,
+            correctAnswers,
+            totalQuestions: questions.length
+        };
     }
 }
 

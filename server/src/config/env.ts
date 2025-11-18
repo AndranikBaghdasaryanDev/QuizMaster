@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-
+// console.log(process.env);
 export interface Env {
   BASE_URL: string;
   FRONT_URL: string;

@@ -18,10 +18,11 @@ app.use(cors({
 }));
 
 // Initialize Passport
-app.use(passport.initialize());
+// app.use(passport.initialize());
 
 import { fileURLToPath } from "url";
 import multer from "multer";
+import level from "./controllers/level.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -54,13 +55,13 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    const { authRouter, userRouter, quizRouter, categoryRouter } = await import("./routes/index.ts");
+    const { authRouter, userRouter, quizRouter, categoryRouter,levelRouter } = await import("./routes/index.ts");
 
     app.use("/auth", authRouter);
     app.use("/user", userRouter);
     app.use("/quiz", quizRouter);
     app.use("/category", categoryRouter);
-
+    app.use("/level",levelRouter)
     const URL = `${env.BASE_URL}:${env.PORT}`;
     const SWAGGER = `${env.BASE_URL}:${env.PORT}/api-docs`
     app.listen(env.PORT, () => console.log(`Server running at ${URL}, ${SWAGGER}`));

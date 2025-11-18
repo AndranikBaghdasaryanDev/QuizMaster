@@ -36,8 +36,8 @@ export const Login = () => {
 				setTimeout(() => {
 					localStorage.setItem("token", response.data.payload.token)
 					navigate("/profile")
-				},3000)
-			},3000)
+				},2000)
+			},2000)
 		}) 
 		.catch(error => {
 			console.log(error.response.data)

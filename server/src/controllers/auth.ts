@@ -7,7 +7,6 @@ import { sendMail } from "../lib/mail.ts";
 import { getVerifyEmailTemplate } from "../lib/templates/verifyEmail.ts";
 import { env } from "../config/env.ts";
 import JWT from "jsonwebtoken";
-
 class AuthController {
     async signup(req: Request, res: Response) {
         if (!req.body) {
