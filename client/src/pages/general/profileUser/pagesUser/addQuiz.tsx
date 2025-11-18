@@ -68,7 +68,7 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 								<button
 									type="button"
 									onClick={() => setActive(false)}
-									className="p-2 rounded-lg hover:bg-[#1e1c25] transition"
+										className="p-2 rounded-lg hover:bg-[#1e1c25] transition cursor-pointer"
 								>
 									<X className="w-5 h-5 text-gray-400" />
 								</button>
@@ -146,7 +146,7 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 
 							<button
 								type="submit"
-								className="px-6 py-2 rounded-md font-semibold bg-linear-to-r from-[#8b5cf6] to-[#7c3aed] hover:opacity-90 transition shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+									className="px-6 py-2 rounded-md font-semibold bg-linear-to-r from-[#8b5cf6] to-[#7c3aed] hover:opacity-90 transition shadow-[0_0_15px_rgba(139,92,246,0.4)] cursor-pointer"
 							>
 								Next Step
 							</button>

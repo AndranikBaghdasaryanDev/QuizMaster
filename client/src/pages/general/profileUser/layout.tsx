@@ -23,7 +23,7 @@ export const Layout = () => {
 	useEffect(() => {
 		Axios.get("/auth/user")
 			.then((response) => setAccount(response.data.payload.user))
-			.catch(() => navigate("/login"))
+			// .catch(() => navigate("/login"))
 	}, [])
 
 	const menu = [
@@ -50,7 +50,7 @@ export const Layout = () => {
 						className={({ isActive }) =>
 							`flex items-center gap-3 px-3 py-2 rounded-md text-sm w-full transition-all ${isActive
 								? "bg-[#8b5cf6]/25 text-[#c084fc] font-semibold"
-								: "text-gray-400 hover:bg-[#1e1c25] hover:text-white"
+								: "text-gray-400 hover:bg-[#1e1c25] hover:text-white cursor-pointer"
 							}`
 						}
 					>
@@ -68,7 +68,7 @@ export const Layout = () => {
 				className="lg:hidden mt-4 mb-4 flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold
       bg-linear-to-r from-[#7e3af2] via-[#a855f7] to-[#ec4899]
       hover:from-[#8b5cf6] hover:via-[#a855f7] hover:to-[#f472b6]
-      shadow-[0_0_18px_rgba(168,85,247,0.45)] transition-all duration-200 text-white"
+      shadow-[0_0_18px_rgba(168,85,247,0.45)] transition-all duration-200 text-white cursor-pointer"
 			>
 				<PlusCircle className="w-5 h-5" />
 				Create Quiz
@@ -104,7 +104,7 @@ export const Layout = () => {
     border border-[#2a2a34]
     hover:border-[#3a3a44]
     transition-all duration-200
-    shadow-sm hover:shadow-[0_0_12px_rgba(168,85,247,0.25)]
+    shadow-sm hover:shadow-[0_0_12px_rgba(168,85,247,0.25)] cursor-pointer
   "
 				>
 					<svg xmlns='http://www.w3.org/2000/svg' className='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -151,7 +151,7 @@ export const Layout = () => {
 					{/* Mobile menu btn */}
 					<button
 						onClick={() => setMobileSidebar(true)}
-						className="lg:hidden bg-[#1a1a24] p-2 rounded-md border border-[#2a2a34] hover:bg-[#22222e] transition"
+						className="lg:hidden bg-[#1a1a24] p-2 rounded-md border border-[#2a2a34] hover:bg-[#22222e] transition cursor-pointer"
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -171,7 +171,7 @@ export const Layout = () => {
 					{/* Create Button */}
 					<button
 						onClick={() => setActive(true)}
-						className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-md font-semibold text-sm bg-linear-to-r from-[#7e3af2] via-[#a855f7] to-[#ec4899] hover:from-[#8b5cf6] hover:via-[#a855f7] hover:to-[#f472b6] shadow-[0_0_25px_rgba(168,85,247,0.45)] transition-all duration-200"
+						className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-md font-semibold text-sm bg-linear-to-r from-[#7e3af2] via-[#a855f7] to-[#ec4899] hover:from-[#8b5cf6] hover:via-[#a855f7] hover:to-[#f472b6] shadow-[0_0_25px_rgba(168,85,247,0.45)] transition-all duration-200 cursor-pointer"
 					>
 						<PlusCircle className="w-5 h-5" />
 						Create Quiz

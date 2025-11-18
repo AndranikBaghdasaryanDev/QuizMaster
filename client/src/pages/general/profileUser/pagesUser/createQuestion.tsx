@@ -112,7 +112,7 @@ export const CreateQuestion = ({ quizData, setQuiz, setNextActive, setActive }: 
 					<div className="flex items-center gap-3">
 						<button
 							onClick={() => setActive(false)}
-							className="p-2 rounded-lg hover:bg-[#1e1c25] transition"
+							className="p-2 rounded-lg hover:bg-[#1e1c25] transition cursor-pointer"
 						>
 							<X className="w-5 h-5 text-gray-400" />
 						</button>
@@ -173,7 +173,7 @@ export const CreateQuestion = ({ quizData, setQuiz, setNextActive, setActive }: 
 									{/* DELETE QUESTION */}
 									<button
 										onClick={() => handleDeleteQuestion(question._id)}
-										className="p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-[#1a1a20] transition"
+										className="p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-[#1a1a20] transition cursor-pointer"
 									>
 										<Trash2 className="w-5 h-5" />
 									</button>
@@ -241,7 +241,7 @@ export const CreateQuestion = ({ quizData, setQuiz, setNextActive, setActive }: 
 
 										<button
 											onClick={() => handleDeleteAnswer(question._id, answer.id)}
-											className="p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-[#1a1a20] transition"
+											className="p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-[#1a1a20] transition cursor-pointer"
 										>
 											<Trash2 className="w-5 h-5" />
 										</button>
@@ -249,7 +249,7 @@ export const CreateQuestion = ({ quizData, setQuiz, setNextActive, setActive }: 
 								))}
 
 								{/* ADD ANSWER BUTTON */}
-								<div className="border border-dashed border-[#3a3a45] rounded-xl py-4 mt-4 flex justify-center hover:border-[#8b5cf6]/50 transition">
+								<div className="border border-dashed border-[#3a3a45] rounded-xl py-4 mt-4 flex justify-center hover:border-[#8b5cf6]/50 transition cursor-pointer">
 									<button
 										onClick={() => handleAddAnswer(question._id)}
 										className="flex items-center gap-2 text-[#8b5cf6] font-medium hover:text-[#a78bfa] transition"
@@ -285,10 +285,10 @@ export const CreateQuestion = ({ quizData, setQuiz, setNextActive, setActive }: 
 
 
 					{/* ADD QUESTION */}
-					<div className="border border-dashed border-[#2a2a35] rounded-xl py-4 mt-6 flex justify-center hover:border-[#8b5cf6]/50 transition">
+					<div className="border border-dashed border-[#2a2a35] rounded-xl py-4 mt-6 flex justify-center hover:border-[#8b5cf6]/50 transition cursor-pointer">
 						<button
 							onClick={handleAddQuestion}
-							className="flex items-center gap-2 text-[#8b5cf6] font-medium hover:text-[#a78bfa] transition"
+							className="flex items-center gap-2 text-[#8b5cf6] font-medium hover:text-[#a78bfa] transition "
 						>
 							<Plus className="w-4 h-4" />
 							Add Question
@@ -301,7 +301,7 @@ export const CreateQuestion = ({ quizData, setQuiz, setNextActive, setActive }: 
 
 					<button
 						onClick={() => setNextActive(false)}
-						className="flex items-center gap-2 px-4 py-2 rounded-md border border-[#2a2a2f] text-gray-300 hover:bg-[#1a1a20] hover:border-[#444] transition"
+						className="flex items-center gap-2 px-4 py-2 rounded-md border border-[#2a2a2f] text-gray-300 hover:bg-[#1a1a20] hover:border-[#444] transition cursor-pointer"
 					>
 						<ChevronLeft className="w-4 h-4" />
 						Prev
@@ -309,7 +309,7 @@ export const CreateQuestion = ({ quizData, setQuiz, setNextActive, setActive }: 
 
 					<button
 						onClick={handleAdd}
-						className="px-6 py-2 rounded-md font-semibold bg-linear-to-r from-[#8b5cf6] to-[#7c3aed] hover:opacity-90 transition shadow-[0_0_20px_rgba(139,92,246,0.4)]"
+						className="px-6 py-2 rounded-md font-semibold bg-linear-to-r from-[#8b5cf6] to-[#7c3aed] hover:opacity-90 transition shadow-[0_0_20px_rgba(139,92,246,0.4)] cursor-pointer"
 					>
 						Publish
 					</button>

@@ -79,7 +79,7 @@ export const Login = () => {
 								const apiUrl = Axios.defaults.baseURL || "http://localhost:4002";
 								window.location.href = `${apiUrl}/auth/google`;
 							}}
-							className="flex-1 border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+								className="flex-1 border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition cursor-pointer"
 						>
 							<img
 								src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
@@ -200,7 +200,7 @@ export const Login = () => {
 						</div>
 
 						{/* Submit Button */}
-						<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition">
+						<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition cursor-pointer">
 							Log in
 						</button>
 					</form>
