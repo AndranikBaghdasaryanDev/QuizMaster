@@ -125,7 +125,7 @@ export const ForgotVerify = () => {
 								/>
 							</div>
 						</div>
-						<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition">
+						<button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition cursor-pointer">
 							Log in
 						</button>
 						<p className="text-center text-sm text-gray-500 mt-3">

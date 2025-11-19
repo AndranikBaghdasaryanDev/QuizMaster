@@ -131,7 +131,7 @@ export const ForgotPassword = () => {
 						</div>
 
 						{/* Submit Button */}
-						<button className="w-full mt-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition">
+						<button className="w-full mt-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition cursor-pointer">
 							Next
 						</button>
 					</form>

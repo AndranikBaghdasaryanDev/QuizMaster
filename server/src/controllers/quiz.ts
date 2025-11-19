@@ -10,24 +10,25 @@ class QuizController {
         if (!req.body) {
             return res.status(400).send({ error: true, message: "Payload is required" });
         }
-    
+
         try {
             // 1️⃣ Parse quizData JSON
-            const quizData = req.body.quizData ? JSON.parse(req.body.quizData) : {};
-            const { 
-                title, 
-                description, 
-                questions, 
-                isActive = true, 
-                access = "free", 
+            const quizData = req.body.quizData ? req.body.quizData : {};
+            const {
+                title,
+                description,
+                questions,
+                isActive = true,
+                access = "free",
                 category,
                 level,
-                availableFrom, 
-                availableUntil 
+                availableFrom,
+                availableUntil
             } = quizData;
-    
+            console.log(quizData)
             // 2️⃣ Validate fields
             if (!title || !validator.isValidLen(title.trim(), 3, 500)) {
+                console.log("test", title)
                 return res.status(400).send({ error: true, message: "Title must be 3-500 characters long." });
             }
             if (!description || !validator.isValidLen(description.trim(), 10, 1000)) {
@@ -36,7 +37,7 @@ class QuizController {
             if (!questions || questions.length === 0) {
                 return res.status(400).send({ error: true, message: "At least 1 question should be added" });
             }
-    
+
             const categoryIsValid = await Category.findById(category);
             if (!categoryIsValid) {
                 return res.status(404).send({ error: true, message: "Invalid category ID" });
@@ -83,7 +84,7 @@ class QuizController {
             const files = req.files as unknown as IQuizUploadFiles;
             
             // 4️⃣ Validate and attach quiz image
-            const quizImageUrl = files?.quizImage?.[0]
+            const quizImageUrl = files?.quizImage?.[0] != undefined
                 ? `/uploads/quiz/${files.quizImage[0].filename}`
                 : null;
     
@@ -115,10 +116,13 @@ class QuizController {
                 }
             }
     
-            const questionsWithImages = questions.map((q: IQuestion, idx: number) => ({
-                ...q,
-                image: effectivePlan === "premium" ? (questionImagesUrl[idx] ?? null) : null
-            }));
+            const questionsWithImages = questions.map((q: IQuestion, idx: number) => {
+                const { _id, ...rest } = q;
+                return {
+                    ...rest,
+                    image: effectivePlan === "premium" ? (questionImagesUrl[idx] ?? null) : null
+                };
+            });
     
             // 6️⃣ Validate and insert questions
             const addQuestionsRes = await this.#addQuestions(questionsWithImages);
@@ -140,15 +144,15 @@ class QuizController {
                 availableUntil: availableUntil ? new Date(availableUntil) : null,
                 image: quizImageUrl
             });
-    
+            console.log(quiz)
             return res.status(201).send({ error: false, message: "Quiz added successfully", payload: quiz._id });
-        } catch(err) {
+        } catch (err) {
             console.error(err);
             return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
     }
-    
-    async #addQuestions(questions: IQuestion[]):Promise<IResponse<Types.ObjectId[] | string>> {
+
+    async #addQuestions(questions: IQuestion[]): Promise<IResponse<Types.ObjectId[] | string>> {
         for (const question of questions) {
             const res = validator.isValidQuestion(question);
             if (res.error) {
@@ -161,69 +165,71 @@ class QuizController {
 
     async getQuizzes(req: Request, res: Response) {
         try {
-
+            console.log("started")
             const { owner_id, access, level, category, limit, offset } = req.body ?? {};
-            
-            const filter:any = {};
-            const options:any = {};
-            
+
+            const filter: any = {};
+            const options: any = {};
+
             if (owner_id) {
                 filter.owner_id = owner_id;
                 if (!(owner_id == req.user?._id)) {
-                    
+                    console.log("owner id ")
                     const ownerDoc = await User.findById(owner_id)
-                    .select("-password -verifyToken -verifyExpires");
-                    
+                        .select("-password -verifyToken -verifyExpires");
+
                     if (!ownerDoc) {
                         return res.status(404).send({ error: true, message: "Owner not found" });
                     }
-                    
+
                     filter.isActive = true;
                     const now = new Date();
                     filter.availableFrom = { $lte: now };
                     filter.$or = [
-                        { availableUntil: { $gte: now }},
-                        { availableUntil: { $exists: false }}
+                        { availableUntil: { $gte: now } },
+                        { availableUntil: { $exists: false } }
                     ];
                 }
             }
             if (category) {
                 if (!mongoose.Types.ObjectId.isValid(category)) {
                     return res.status(400).send({ error: true, message: "Invalid category ID format" });
-                } 
+                }
                 const isValidCategory = await Category.findById(category);
                 if (!isValidCategory) {
                     return res.status(400).send({ error: true, message: "Invalid category ID" });
                 }
                 filter.category = category;
             }
-            if (access) { 
-                const ACCESS_LEVELS = [ "free", "pro", "premium" ];
+            if (access) {
+
+                const ACCESS_LEVELS = ["free", "pro", "premium"];
                 const levelIndex = ACCESS_LEVELS.indexOf(access);
 
                 if (levelIndex === -1) {
                     return res.status(400).send({ error: true, message: "Invalid access level" });
                 }
                 const allowedAcccess = ACCESS_LEVELS.slice(0, levelIndex + 1);
-                filter.access = { $in: allowedAcccess }; 
+                filter.access = { $in: allowedAcccess };
             }
-            if (level) { 
+            if (level) {
+
                 if (["easy", "medium", "hard"].indexOf(level) === -1) {
                     return res.status(400).send({ error: true, message: "Invalid level" });
                 }
-                filter.level = level; 
+                filter.level = level;
             }
-            
+
             if (offset) { options.offset = Math.abs(Number(offset)); }
             if (limit) { options.limit = Math.abs(Number(limit)); }
-            
+
             if (Object.keys(filter).length === 0) {
                 filter.isActive = true;
             }
 
             const quizzes = await Quiz.find(filter, null, options).populate("category");
             return res.send({ error: false, message: "Success", payload: quizzes });
-        } catch(err) {
+        } catch (err) {
             return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
     }
@@ -269,10 +275,10 @@ class QuizController {
                     return res.status(400).send({ error: true, message: "Inactive or unavailable quiz" });
                 }
             }
-            
+
             return res.send({ error: false, message: "Success", payload: quiz });
 
-        } catch(err) {
+        } catch (err) {
             return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
     }
@@ -327,7 +333,6 @@ class QuizController {
                 inputAnswer: q.inputAnswer || null,
                 points: Math.abs(q.points) || 1
             }));
-
             const scoreResult = await this.#calculateScore(questions, userAnswers);
             return res.send({ 
                 error: false, 
@@ -340,7 +345,7 @@ class QuizController {
                     totalQuestions: scoreResult.totalQuestions
                 }
             });
-        } catch(err) {
+        } catch (err) {
             console.error(err);
             return res.status(500).send({ error: true, message: "Server error", payload: err });
         }
@@ -381,10 +386,10 @@ class QuizController {
                         const correctAnswersArray = correctOptions.map(opt => opt.text.trim().toLowerCase());
                         
                         // Check if all correct answers are selected and no incorrect ones
-                        const allCorrectSelected = correctAnswersArray.every(correct => 
+                        const allCorrectSelected = correctAnswersArray.every(correct =>
                             userAnswersArray.includes(correct)
                         );
-                        const hasIncorrectSelected = userAnswersArray.some(userAns => 
+                        const hasIncorrectSelected = userAnswersArray.some(userAns =>
                             !correctAnswersArray.includes(userAns)
                         );
                         
