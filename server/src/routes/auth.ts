@@ -17,7 +17,7 @@ authRouter.get(
   
 authRouter.get(
     "/google/callback",
-    passport.authenticate("google", { failureRedirect: "/login-failed", session: false }),
+    passport.authenticate("google", { failureRedirect: `${env.FRONT_URL}/auth/fail`, session: false }),
     (req, res) => {
       const user = req.user as any;
       const token = JWT.sign({ id: user._id }, env.JWT_SECRET!, { expiresIn: "1h" });

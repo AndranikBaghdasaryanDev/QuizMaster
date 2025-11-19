@@ -1,8 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import JWT from "jsonwebtoken";
-import { env } from "process";
+import { env } from "../config/env.ts";
 import { User } from "../models/index.ts";
-
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
@@ -21,7 +20,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   if (!token) {
     return res.status(403).send({ error: true, message: "Invalid/expired token" });
   }
-
   const decoded = JWT.verify(token, env.JWT_SECRET as string);
 
   if (typeof decoded === "string" || !("id" in decoded)) {
