@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import type { IQuestion, IQuiz, IQuizUploadFiles, IScoreResult, IUserAnswer } from "@/quiz.ts";
-import { Quiz, Question, Category, User } from "../models/index.ts";
+import type { IQuestion, IQuizUploadFiles, IScoreResult, IUserAnswer } from "@/quiz.ts";
+import { Quiz, Question, Category, User, Attempt } from "../models/index.ts";
 import validator from "../lib/validator.ts";
 import mongoose, { type Types } from "mongoose";
 import type { IResponse } from "@/response.ts";
@@ -334,6 +334,21 @@ class QuizController {
                 points: Math.abs(q.points) || 1
             }));
             const scoreResult = await this.#calculateScore(questions, userAnswers);
+            
+            // Save attempt to database
+            const attempt = await Attempt.create({
+                user_id: req.user?._id,
+                quiz_id: quizId,
+                answers: userAnswers,
+                score: {
+                    totalScore: scoreResult.totalScore,
+                    maxScore: scoreResult.maxScore,
+                    percentage: scoreResult.percentage,
+                    correctAnswers: scoreResult.correctAnswers,
+                    totalQuestions: scoreResult.totalQuestions
+                }
+            });
+            
             return res.send({ 
                 error: false, 
                 message: "Success", 
@@ -342,7 +357,8 @@ class QuizController {
                     maxScore: scoreResult.maxScore,
                     percentage: scoreResult.percentage,
                     correctAnswers: scoreResult.correctAnswers,
-                    totalQuestions: scoreResult.totalQuestions
+                    totalQuestions: scoreResult.totalQuestions,
+                    attemptId: attempt._id
                 }
             });
         } catch (err) {
