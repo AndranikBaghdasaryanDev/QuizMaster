@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ObjectId } from "mongodb";
 import type { ICategories } from "./categories";
 
 =======
 >>>>>>> c898f16bd02ed15d2840dbaadfc1e9761b8c796d
+=======
+import type { Types } from "mongoose";
+>>>>>>> 9a9e37fb12b345ccc7a0fdd252c87fb5b254b849
 export interface IAnswer {
   _id: string;
   text: string;
@@ -49,6 +53,12 @@ export interface IQuiz {
   owner_id: string;
 >>>>>>> c898f16bd02ed15d2840dbaadfc1e9761b8c796d
   questions: IQuestion[];
+  isActive: boolean;
+  availableFrom: Date;
+  availableUntil: Date;
+  access: "free" | "pro" | "premium";
+  level: "easy" | "medium" | "hard";
+  category: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -67,7 +77,6 @@ export interface IQuizFront {
   category: string;
   questions: any[];
 }
-
 export interface IQuizUploadFiles {
   quizImage?: Express.Multer.File[];
   questionImages?: Express.Multer.File[];
@@ -83,7 +92,10 @@ export interface ICraeteQuestion {
   setNextActive(nextActive: boolean): void
   setActive(active: boolean): void
 }
-
+export type IQuizAnswersSubmit = {
+  quizId:string
+  answers:IUserAnswer[]
+}
 export interface IUserAnswer {
   questionId: string;
   answer: string | string[]; // For single: string, for multiple: string[], for input: string

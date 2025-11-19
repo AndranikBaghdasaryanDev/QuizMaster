@@ -10,7 +10,7 @@ export const Quizes = () => {
 	const [categories,setCategories] = useState<ICategories[] | null>(null)
 	const [levels,setLevels] = useState<ILevels[] | null>(null)
 	const {register,handleSubmit,formState:{errors}} = useForm<{category:string,level:string}>()
-	const {account,setAccount} = useOutletContext<IOutletContext>()
+	const {account} = useOutletContext<IOutletContext>()
 	const [quizes,setQuizes] = useState<IQuiz[] | null>(null)
 	console.log(quizes)
 	useEffect(() => {
@@ -32,7 +32,7 @@ export const Quizes = () => {
 		console.log(data)
 		Axios.get("/quiz", {
 			params: {
-				owner_id: "bnfdhsghsdgs",
+				owner_id: account._id,
 				access: "free",
 				level: data.level,
 				category: data.category,

@@ -23,7 +23,7 @@ export const Layout = () => {
 	useEffect(() => {
 		Axios.get("/auth/user")
 			.then((response) => setAccount(response.data.payload.user))
-			// .catch(() => navigate("/login"))
+			.catch(() => navigate("/login"))
 	}, [])
 
 	const menu = [

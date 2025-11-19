@@ -485,6 +485,74 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IResponseError'
+  /quiz/submit:
+    post:
+      summary: Submit answers for a quiz and receive score
+      description: >
+        Accepts the user's answers for a quiz and calculates the score based on the stored questions.
+      tags:
+        - Quiz
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quizId
+                - answers
+              properties:
+                quizId:
+                  type: string
+                  description: Quiz ID (MongoDB ObjectId)
+                  example: "650c1f1a2e5b6f001234abcd"
+                answers:
+                  type: array
+                  description: List of answers submitted by the user
+                  items:
+                    $ref: '#/components/schemas/IQuizSubmitAnswer'
+      responses:
+        '200':
+          description: Quiz submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Success"
+                  payload:
+                    $ref: '#/components/schemas/IQuizSubmitResult'
+        '400':
+          description: Invalid quiz ID or answers payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '404':
+          description: Quiz or questions not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IResponseError'
 
   /quiz/{id}:
     get:
@@ -889,3 +957,46 @@ components:
           example: "Quiz added successfully"
         payload:
           $ref: '#/components/schemas/IQuiz'
+    IQuizSubmitAnswer:
+      type: object
+      properties:
+        questionId:
+          type: string
+          description: Question ID
+          example: "650c1f1a2e5b6f001234abcd"
+        answer:
+          description: >
+            User's answer.  
+            - For `single` and `input` questions, send a string.  
+            - For `multiple` questions, send an array of strings.
+          oneOf:
+            - type: string
+              example: "4"
+            - type: array
+              items:
+                type: string
+              example:
+                - "Earth"
+                - "Mars"
+      required:
+        - questionId
+        - answer
+    IQuizSubmitResult:
+      type: object
+      properties:
+        totalScore:
+          type: integer
+          example: 8
+        maxScore:
+          type: integer
+          example: 10
+        percentage:
+          type: number
+          format: float
+          example: 80
+        correctAnswers:
+          type: integer
+          example: 4
+        totalQuestions:
+          type: integer
+          example: 5

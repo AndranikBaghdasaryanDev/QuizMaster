@@ -14,9 +14,6 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 			.get("/category")
 			.then((response) => {
 				setCategories(response.data.payload)
-				// const map = {}
-				// response.data.payload.forEach(c => map[c.name] = c._id)
-				// setCategoryMap(map)
 			})
 	}, [])
 	const [quizData, setQuiz] = useState<IQuizFront>({
@@ -62,13 +59,12 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 						onSubmit={handleSubmit(handleAdd)}
 						className="w-full max-w-5xl bg-[#141419] rounded-2xl p-8 border border-white/10 shadow-[0_0_40px_rgba(123,63,228,0.4)] text-white"
 					>
-						{/* === Header === */}
 						<div className="flex justify-between items-center mb-10">
 							<div className="flex items-center gap-3">
 								<button
 									type="button"
 									onClick={() => setActive(false)}
-										className="p-2 rounded-lg hover:bg-[#1e1c25] transition cursor-pointer"
+									className="p-2 rounded-lg hover:bg-[#1e1c25] transition cursor-pointer"
 								>
 									<X className="w-5 h-5 text-gray-400" />
 								</button>
@@ -81,7 +77,6 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 							</div>
 						</div>
 
-						{/* === Quiz Details === */}
 						<div className="bg-[#111016] rounded-2xl border border-[#1e1c25] p-8">
 							<h2 className="text-lg font-semibold mb-1">Quiz Details</h2>
 							<p className="text-sm text-gray-400 mb-6">
@@ -89,7 +84,6 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 							</p>
 
 							<div className="space-y-5">
-								{/* Title */}
 								<div>
 									<label className="text-sm text-gray-300">Quiz Title</label>
 									<input
@@ -99,7 +93,6 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 									/>
 								</div>
 
-								{/* Description */}
 								<div>
 									<label className="text-sm text-gray-300">Description</label>
 									<textarea
@@ -110,7 +103,6 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 									/>
 								</div>
 
-								{/* Category / Difficulty */}
 								<div className="grid grid-cols-2 gap-5">
 									<div>
 										<label className="text-sm text-gray-300">Category</label>
@@ -141,12 +133,11 @@ export const AddQuiz = ({ setActive }: IAddQuizProps) => {
 							</div>
 						</div>
 
-						{/* === Footer Buttons === */}
 						<div className="flex justify-end mt-8">
 
 							<button
 								type="submit"
-									className="px-6 py-2 rounded-md font-semibold bg-linear-to-r from-[#8b5cf6] to-[#7c3aed] hover:opacity-90 transition shadow-[0_0_15px_rgba(139,92,246,0.4)] cursor-pointer"
+								className="px-6 py-2 rounded-md font-semibold bg-linear-to-r from-[#8b5cf6] to-[#7c3aed] hover:opacity-90 transition shadow-[0_0_15px_rgba(139,92,246,0.4)] cursor-pointer"
 							>
 								Next Step
 							</button>
