@@ -10,20 +10,20 @@ const authRouter = express.Router();
 authRouter.post("/signup", authController.signup);
 authRouter.post("/login", authController.login);
 
-// authRouter.get(
-//     "/google",
-//     passport.authenticate("google", { scope: ["profile", "email"] })
-// );
+authRouter.get(
+    "/google",
+    passport.authenticate("google", { scope: ["profile", "email"] })
+);
   
-// authRouter.get(
-//     "/google/callback",
-//     passport.authenticate("google", { failureRedirect: "/login-failed", session: false }),
-//     (req, res) => {
-//       const user = req.user as any;
-//       const token = JWT.sign({ id: user._id }, env.JWT_SECRET!, { expiresIn: "1h" });
-//       res.redirect(`${env.FRONT_URL}/auth/success?token=${token}`);
-//     }
-// );
+authRouter.get(
+    "/google/callback",
+    passport.authenticate("google", { failureRedirect: `${env.FRONT_URL}/auth/fail`, session: false }),
+    (req, res) => {
+      const user = req.user as any;
+      const token = JWT.sign({ id: user._id }, env.JWT_SECRET!, { expiresIn: "1h" });
+      res.redirect(`${env.FRONT_URL}/auth/success?token=${token}`);
+    }
+);
   
 authRouter.get("/user", authMiddleware, authController.getUser);
 
